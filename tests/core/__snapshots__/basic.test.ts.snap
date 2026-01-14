@@ -1,0 +1,1060 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`JianWen parser - Include and snapshots expands tag includes and keeps AST stable 1`] = `
+[
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "child": {
+      "blockAttrs": {
+        "position": "L",
+      },
+      "children": [
+        {
+          "type": "text",
+          "value": "Intro heading",
+        },
+      ],
+      "foldable": undefined,
+      "level": 1,
+      "type": "heading",
+    },
+    "name": "intro",
+    "type": "taggedBlock",
+  },
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "children": [
+      {
+        "type": "text",
+        "value": "Intro heading",
+      },
+    ],
+    "level": 1,
+    "type": "heading",
+  },
+]
+`;
+
+exports[`JianWen parser - advanced features applies block attributes and tagged blocks, horizontal rules and images 1`] = `
+[
+  {
+    "blockAttrs": {
+      "align": "center",
+      "position": "C",
+      "sameLine": true,
+    },
+    "children": [
+      {
+        "type": "text",
+        "value": "Centered heading",
+      },
+    ],
+    "foldable": undefined,
+    "level": 1,
+    "type": "heading",
+  },
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "child": {
+      "blockAttrs": {
+        "position": "L",
+      },
+      "colorAttr": {
+        "kind": "hex",
+        "value": "#FF0000",
+      },
+      "style": "bold",
+      "type": "hr",
+    },
+    "name": "hero",
+    "type": "taggedBlock",
+  },
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "roundedRadius": undefined,
+    "shape": undefined,
+    "type": "image",
+    "url": "path/to/img.png",
+  },
+]
+`;
+
+exports[`JianWen parser - advanced features parses inline styles, attributes, links, highlights and footnotes 1`] = `
+[
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "type": "raw",
+    "value": "[bold,2] *strong* /em/ _u_ -del- ~wave~ ^sup^ ^^sub^^",
+  },
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "type": "raw",
+    "value": "[red]\`\`frame\`\` [!yellow]=marker=",
+  },
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "type": "raw",
+    "value": "[link][red]Click me(https://example.com)",
+  },
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "children": [
+      {
+        "type": "text",
+        "value": "Text with footnote ",
+      },
+      {
+        "id": "note1",
+        "type": "footnoteRef",
+      },
+      {
+        "type": "text",
+        "value": ".",
+      },
+    ],
+    "type": "paragraph",
+  },
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "children": [
+      {
+        "children": [
+          {
+            "blockAttrs": {
+              "position": "L",
+            },
+            "children": [
+              {
+                "type": "text",
+                "value": "Footnote content.",
+              },
+            ],
+            "type": "paragraph",
+          },
+        ],
+        "id": "note1",
+        "type": "footnoteDef",
+      },
+    ],
+    "type": "footnotes",
+  },
+]
+`;
+
+exports[`JianWen parser - basic syntax parses headings, paragraphs, lists, code blocks, tables and hr as expected 1`] = `
+[
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "children": [
+      {
+        "type": "text",
+        "value": "Heading 1",
+      },
+    ],
+    "foldable": undefined,
+    "level": 1,
+    "type": "heading",
+  },
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "children": [
+      {
+        "type": "text",
+        "value": "Plain paragraph line.",
+      },
+    ],
+    "type": "paragraph",
+  },
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "bullet item",
+              },
+            ],
+            "type": "paragraph",
+          },
+        ],
+        "indent": 1,
+        "kind": "bullet",
+        "ordinal": undefined,
+        "taskStatus": undefined,
+        "type": "listItem",
+      },
+    ],
+    "kind": "bullet",
+    "orderedStyle": undefined,
+    "type": "list",
+  },
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "task done",
+              },
+            ],
+            "type": "paragraph",
+          },
+        ],
+        "indent": 1,
+        "kind": "task",
+        "ordinal": undefined,
+        "taskStatus": "done",
+        "type": "listItem",
+      },
+    ],
+    "kind": "task",
+    "orderedStyle": undefined,
+    "type": "list",
+  },
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "ordered one",
+              },
+            ],
+            "type": "paragraph",
+          },
+        ],
+        "indent": 1,
+        "kind": "ordered",
+        "ordinal": "1",
+        "taskStatus": undefined,
+        "type": "listItem",
+      },
+    ],
+    "kind": "ordered",
+    "orderedStyle": "decimal",
+    "type": "list",
+  },
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "htmlLike": undefined,
+    "language": "ts",
+    "type": "code",
+    "value": "const x = 1;",
+  },
+  {
+    "align": undefined,
+    "blockAttrs": {
+      "position": "L",
+    },
+    "rows": [
+      {
+        "cells": [
+          {
+            "align": undefined,
+            "children": [
+              {
+                "type": "text",
+                "value": "a",
+              },
+            ],
+            "type": "tableCell",
+          },
+          {
+            "align": undefined,
+            "children": [
+              {
+                "type": "text",
+                "value": "b",
+              },
+            ],
+            "type": "tableCell",
+          },
+        ],
+        "type": "tableRow",
+      },
+      {
+        "cells": [
+          {
+            "align": undefined,
+            "children": [
+              {
+                "type": "text",
+                "value": "1",
+              },
+            ],
+            "type": "tableCell",
+          },
+          {
+            "align": undefined,
+            "children": [
+              {
+                "type": "text",
+                "value": "2",
+              },
+            ],
+            "type": "tableCell",
+          },
+        ],
+        "type": "tableRow",
+      },
+    ],
+    "type": "table",
+  },
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "colorAttr": undefined,
+    "style": "solid",
+    "type": "hr",
+  },
+]
+`;
+
+exports[`JianWen parser - complex integration scenario parses a complex document combining meta, blocks, lists, tables, hr, quotes, images, links and footnotes 1`] = `
+{
+  "children": [
+    {
+      "blockAttrs": {
+        "align": "center",
+        "position": "L",
+      },
+      "children": [
+        {
+          "type": "text",
+          "value": "Foldable heading ",
+        },
+        {
+          "children": [
+            {
+              "type": "text",
+              "value": "Title",
+            },
+          ],
+          "type": "em",
+        },
+      ],
+      "foldable": true,
+      "level": 1,
+      "type": "heading",
+    },
+    {
+      "blockAttrs": {
+        "fold": true,
+        "position": "L",
+      },
+      "children": [
+        {
+          "type": "text",
+          "value": "Paragraph with ",
+        },
+        {
+          "children": [
+            {
+              "type": "text",
+              "value": "strong",
+            },
+          ],
+          "type": "strong",
+        },
+        {
+          "type": "text",
+          "value": " ",
+        },
+        {
+          "children": [
+            {
+              "type": "text",
+              "value": "em",
+            },
+          ],
+          "type": "em",
+        },
+        {
+          "type": "text",
+          "value": " ",
+        },
+        {
+          "children": [
+            {
+              "type": "text",
+              "value": "u",
+            },
+          ],
+          "type": "underline",
+        },
+        {
+          "type": "text",
+          "value": " ",
+        },
+        {
+          "children": [
+            {
+              "type": "text",
+              "value": "del",
+            },
+          ],
+          "type": "strike",
+        },
+        {
+          "type": "text",
+          "value": " ",
+        },
+        {
+          "children": [
+            {
+              "type": "text",
+              "value": "wave",
+            },
+          ],
+          "type": "wave",
+        },
+        {
+          "type": "text",
+          "value": " ",
+        },
+        {
+          "children": [
+            {
+              "type": "text",
+              "value": "sup",
+            },
+          ],
+          "type": "sup",
+        },
+        {
+          "type": "text",
+          "value": " ",
+        },
+        {
+          "children": [
+            {
+              "type": "text",
+              "value": "sub",
+            },
+          ],
+          "type": "sub",
+        },
+        {
+          "type": "text",
+          "value": " and ",
+        },
+        {
+          "attrs": {},
+          "children": [
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "frame",
+                },
+              ],
+              "colorAttr": {
+                "kind": "preset",
+                "value": "red",
+              },
+              "mode": "frame",
+              "type": "highlight",
+            },
+          ],
+          "type": "inlineAttrs",
+        },
+        {
+          "type": "text",
+          "value": " plus ",
+        },
+        {
+          "attrs": {},
+          "children": [
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "marker",
+                },
+              ],
+              "fillColorAttr": {
+                "kind": "preset",
+                "value": "yellow",
+              },
+              "mode": "marker",
+              "type": "highlight",
+            },
+          ],
+          "type": "inlineAttrs",
+        },
+        {
+          "type": "text",
+          "value": " and a ",
+        },
+        {
+          "type": "text",
+          "value": "[link][green,!blue][Link text]",
+        },
+        {
+          "type": "text",
+          "value": "(https:",
+        },
+        {
+          "children": [],
+          "type": "em",
+        },
+        {
+          "type": "text",
+          "value": "example.com) and ",
+        },
+        {
+          "id": "note1",
+          "type": "footnoteRef",
+        },
+        {
+          "type": "text",
+          "value": ".",
+        },
+      ],
+      "type": "paragraph",
+    },
+    {
+      "blockAttrs": {
+        "position": "L",
+      },
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "bullet item",
+                },
+              ],
+              "type": "paragraph",
+            },
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "type": "text",
+                          "value": "nested bullet",
+                        },
+                      ],
+                      "type": "paragraph",
+                    },
+                  ],
+                  "indent": 2,
+                  "kind": "bullet",
+                  "ordinal": undefined,
+                  "taskStatus": undefined,
+                  "type": "listItem",
+                },
+              ],
+              "kind": "bullet",
+              "orderedStyle": undefined,
+              "type": "list",
+            },
+          ],
+          "indent": 1,
+          "kind": "bullet",
+          "ordinal": undefined,
+          "taskStatus": undefined,
+          "type": "listItem",
+        },
+      ],
+      "kind": "bullet",
+      "orderedStyle": undefined,
+      "type": "list",
+    },
+    {
+      "blockAttrs": {
+        "position": "L",
+      },
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "ordered root",
+                },
+              ],
+              "type": "paragraph",
+            },
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "type": "text",
+                          "value": "ordered child",
+                        },
+                      ],
+                      "type": "paragraph",
+                    },
+                  ],
+                  "indent": 2,
+                  "kind": "ordered",
+                  "ordinal": "1.1",
+                  "taskStatus": undefined,
+                  "type": "listItem",
+                },
+              ],
+              "kind": "ordered",
+              "orderedStyle": "decimal",
+              "type": "list",
+            },
+          ],
+          "indent": 1,
+          "kind": "ordered",
+          "ordinal": "1",
+          "taskStatus": undefined,
+          "type": "listItem",
+        },
+      ],
+      "kind": "ordered",
+      "orderedStyle": "decimal",
+      "type": "list",
+    },
+    {
+      "blockAttrs": {
+        "position": "L",
+      },
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "foldable task root",
+                },
+              ],
+              "type": "paragraph",
+            },
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "type": "text",
+                          "value": "foldable task done",
+                        },
+                      ],
+                      "type": "paragraph",
+                    },
+                  ],
+                  "indent": 2,
+                  "kind": "foldable",
+                  "ordinal": "1.1",
+                  "taskStatus": "done",
+                  "type": "listItem",
+                },
+              ],
+              "kind": "foldable",
+              "orderedStyle": undefined,
+              "type": "list",
+            },
+          ],
+          "indent": 1,
+          "kind": "foldable",
+          "ordinal": "1",
+          "taskStatus": "in_progress",
+          "type": "listItem",
+        },
+      ],
+      "kind": "foldable",
+      "orderedStyle": undefined,
+      "type": "list",
+    },
+    {
+      "blockAttrs": {
+        "position": "L",
+      },
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "task not done",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "indent": 1,
+          "kind": "task",
+          "ordinal": undefined,
+          "taskStatus": "not_done",
+          "type": "listItem",
+        },
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "task done",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "indent": 1,
+          "kind": "task",
+          "ordinal": undefined,
+          "taskStatus": "done",
+          "type": "listItem",
+        },
+      ],
+      "kind": "task",
+      "orderedStyle": undefined,
+      "type": "list",
+    },
+    {
+      "align": undefined,
+      "blockAttrs": {
+        "align": "right",
+        "position": "L",
+      },
+      "rows": [
+        {
+          "cells": [
+            {
+              "align": undefined,
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Name",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "align": undefined,
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Value",
+                },
+              ],
+              "type": "tableCell",
+            },
+          ],
+          "type": "tableRow",
+        },
+        {
+          "cells": [
+            {
+              "align": undefined,
+              "children": [
+                {
+                  "type": "text",
+                  "value": "a",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "align": undefined,
+              "children": [
+                {
+                  "type": "text",
+                  "value": "1",
+                },
+              ],
+              "type": "tableCell",
+            },
+          ],
+          "type": "tableRow",
+        },
+        {
+          "cells": [
+            {
+              "align": undefined,
+              "children": [
+                {
+                  "type": "text",
+                  "value": "b",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "align": undefined,
+              "children": [
+                {
+                  "type": "text",
+                  "value": "2",
+                },
+              ],
+              "type": "tableCell",
+            },
+          ],
+          "type": "tableRow",
+        },
+      ],
+      "type": "table",
+    },
+    {
+      "blockAttrs": {
+        "position": "L",
+      },
+      "child": {
+        "blockAttrs": {
+          "position": "L",
+        },
+        "roundedRadius": undefined,
+        "shape": "rounded",
+        "title": "Hero image",
+        "type": "image",
+        "url": "hero.png",
+      },
+      "name": "hero",
+      "type": "taggedBlock",
+    },
+    {
+      "blockAttrs": {
+        "position": "L",
+      },
+      "children": [
+        {
+          "blockAttrs": {
+            "position": "L",
+          },
+          "children": [
+            {
+              "type": "text",
+              "value": "Quote start",
+            },
+          ],
+          "type": "paragraph",
+        },
+        {
+          "blockAttrs": {
+            "position": "L",
+          },
+          "children": [
+            {
+              "blockAttrs": {
+                "position": "L",
+              },
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Nested quote with ",
+                },
+                {
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "styles",
+                    },
+                  ],
+                  "type": "strong",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "level": 2,
+          "type": "quote",
+        },
+      ],
+      "level": 1,
+      "type": "quote",
+    },
+    {
+      "blockAttrs": {
+        "position": "L",
+      },
+      "colorAttr": {
+        "kind": "hex",
+        "value": "#FF0000",
+      },
+      "style": "solid",
+      "type": "hr",
+    },
+    {
+      "blockAttrs": {
+        "position": "L",
+      },
+      "colorAttr": undefined,
+      "style": "dashed",
+      "type": "hr",
+    },
+    {
+      "blockAttrs": {
+        "position": "L",
+      },
+      "colorAttr": undefined,
+      "style": "bold",
+      "type": "hr",
+    },
+    {
+      "blockAttrs": {
+        "position": "L",
+      },
+      "colorAttr": undefined,
+      "style": "wavy",
+      "type": "hr",
+    },
+    {
+      "blockAttrs": {
+        "position": "L",
+      },
+      "children": [
+        {
+          "children": [
+            {
+              "blockAttrs": {
+                "position": "L",
+              },
+              "children": [
+                {
+                  "type": "text",
+                  "value": "This is the first footnote.",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "id": "note1",
+          "type": "footnoteDef",
+        },
+      ],
+      "type": "footnotes",
+    },
+  ],
+  "meta": {
+    "author": "Tester",
+    "tags": [
+      "integration",
+      "demo",
+    ],
+    "title": "Integration test",
+  },
+  "source": "____________________
+[title]=Integration test
+[author]=Tester
+[tag(s)]=integration, demo
+____________________
+
+[c,2]
+#+ Foldable heading /Title/
+
+Paragraph with *strong* /em/ _u_ -del- ~wave~ ^sup^ ^^sub^^ and [red]\`\`frame\`\` plus [!yellow]=marker= and a [link][green,!blue][Link text](https://example.com) and [fn:note1].
+
+- bullet item
+-- nested bullet
+1. ordered root
+1.1. ordered child
++[o] foldable task root
+++[v] foldable task done
+-[x] task not done
+-[v] task done
+
+[sheet][r]
+| Name | Value |
+| a | 1 |
+| b | 2 |
+
+[tag=hero]
+[rounded,img](hero.png)
+> Hero image
+
+@ Quote start
+@@ Nested quote with *styles*
+
+[#FF0000]-----
+*****
+=====
+~~~~~
+
+[footnotes]
+[fn=note1]
+This is the first footnote.",
+  "type": "document",
+}
+`;
+
+exports[`JianWen parser - html and comment blocks parses comment and html-like code blocks 1`] = `
+[
+  {
+    "blockAttrs": undefined,
+    "children": [
+      {
+        "blockAttrs": {
+          "position": "L",
+        },
+        "children": [
+          {
+            "type": "text",
+            "value": "Hidden heading",
+          },
+        ],
+        "foldable": undefined,
+        "level": 1,
+        "type": "heading",
+      },
+    ],
+    "type": "commentBlock",
+  },
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "htmlLike": true,
+    "language": undefined,
+    "type": "code",
+    "value": "<div>html</div>",
+  },
+]
+`;

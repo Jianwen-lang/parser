@@ -1,0 +1,102 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`JianWen include - complex placement expands includes inside lists, quotes and footnotes 1`] = `
+[
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "item 1",
+              },
+            ],
+            "type": "paragraph",
+          },
+        ],
+        "indent": 1,
+        "kind": "bullet",
+        "ordinal": undefined,
+        "taskStatus": undefined,
+        "type": "listItem",
+      },
+    ],
+    "kind": "bullet",
+    "orderedStyle": undefined,
+    "type": "list",
+  },
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "children": [
+      {
+        "type": "text",
+        "value": "-[@](child)",
+      },
+    ],
+    "type": "paragraph",
+  },
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "children": [
+      {
+        "blockAttrs": {
+          "position": "L",
+        },
+        "children": [
+          {
+            "type": "text",
+            "value": "Quote with ",
+          },
+          {
+            "attrs": {
+              "color": {
+                "kind": "preset",
+                "value": "@",
+              },
+            },
+            "children": [
+              {
+                "type": "text",
+                "value": "(child)",
+              },
+            ],
+            "type": "inlineAttrs",
+          },
+        ],
+        "type": "paragraph",
+      },
+    ],
+    "level": 1,
+    "type": "quote",
+  },
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "children": [
+      {
+        "type": "text",
+        "value": "Text ",
+      },
+      {
+        "id": "note1",
+        "type": "footnoteRef",
+      },
+      {
+        "type": "text",
+        "value": ".",
+      },
+    ],
+    "type": "paragraph",
+  },
+]
+`;

@@ -1,0 +1,268 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`JianWen inline - attributes and scope applies [attrs] only to following symbol when directly followed by inline marker 1`] = `
+[
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "type": "raw",
+    "value": "[red]\`printf()\` normal [bold] *strong* text",
+  },
+]
+`;
+
+exports[`JianWen inline - attributes and scope applies [attrs]...[/] range to enclosed segment 1`] = `
+[
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "type": "raw",
+    "value": "[bold,2]strong and /em/[/] normal",
+  },
+]
+`;
+
+exports[`JianWen inline - escapes and basic styles handles backslash escapes before inline symbols 1`] = `
+[
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "children": [
+      {
+        "type": "text",
+        "value": "Literal *star* and [brackets]",
+      },
+    ],
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`JianWen inline - escapes and basic styles parses nested inline styles and highlights 1`] = `
+[
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "children": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "strong ",
+          },
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "em ",
+              },
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "u ",
+                  },
+                  {
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": "frame",
+                      },
+                    ],
+                    "mode": "frame",
+                    "type": "highlight",
+                  },
+                ],
+                "type": "underline",
+              },
+            ],
+            "type": "em",
+          },
+          {
+            "type": "text",
+            "value": " text",
+          },
+        ],
+        "type": "strong",
+      },
+    ],
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`JianWen inline - inline code allows inline attributes to style inline code 1`] = `
+[
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "children": [
+      {
+        "type": "text",
+        "value": "Use ",
+      },
+      {
+        "attrs": {
+          "color": {
+            "kind": "preset",
+            "value": "red",
+          },
+        },
+        "children": [
+          {
+            "type": "codeSpan",
+            "value": "printf()",
+          },
+        ],
+        "type": "inlineAttrs",
+      },
+      {
+        "type": "text",
+        "value": " for output",
+      },
+    ],
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`JianWen inline - inline code parses inline code spans inside sentences 1`] = `
+[
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "children": [
+      {
+        "type": "text",
+        "value": "Call ",
+      },
+      {
+        "type": "codeSpan",
+        "value": "function()",
+      },
+      {
+        "type": "text",
+        "value": " to execute.",
+      },
+    ],
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`JianWen inline - inline code supports multiple inline code segments in one line 1`] = `
+[
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "children": [
+      {
+        "type": "text",
+        "value": "Set ",
+      },
+      {
+        "type": "codeSpan",
+        "value": "var x",
+      },
+      {
+        "type": "text",
+        "value": " and ",
+      },
+      {
+        "type": "codeSpan",
+        "value": "let y",
+      },
+      {
+        "type": "text",
+        "value": " before use.",
+      },
+    ],
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`JianWen inline - links and comments parses inline comments embedded in styled text 1`] = `
+[
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "children": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "strong ",
+          },
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "hidden",
+              },
+            ],
+            "type": "commentInline",
+          },
+          {
+            "type": "text",
+            "value": " text",
+          },
+        ],
+        "type": "strong",
+      },
+    ],
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`JianWen inline - links and comments parses links with color and underline attributes 1`] = `
+[
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "type": "raw",
+    "value": "[link][red,!blue]Click here(https://example.com)",
+  },
+]
+`;
+
+exports[`JianWen inline - marker highlight parses marker highlight delimited by = 1`] = `
+[
+  {
+    "blockAttrs": {
+      "position": "L",
+    },
+    "children": [
+      {
+        "type": "text",
+        "value": "Text with ",
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "marker highlight",
+          },
+        ],
+        "mode": "marker",
+        "type": "highlight",
+      },
+      {
+        "type": "text",
+        "value": " content",
+      },
+    ],
+    "type": "paragraph",
+  },
+]
+`;
