@@ -1,5 +1,6 @@
 import { ColorAttribute, InlineAttributes, InlineNode, LinkNode } from '../../ast';
 import { ParseError } from '../../errors';
+import { reportParseWarning } from '../../diagnostics';
 import { setNodeLocation } from '../../location';
 import { InlineFontStyleKey } from '../types';
 import { readBacktickSegment } from './backtick';
@@ -132,11 +133,10 @@ function parseInlineAttributes(
       if (size >= 0.5 && size <= 5 && Math.abs(size * 2 - Math.round(size * 2)) < 1e-6) {
         attrs.fontSize = size;
       } else {
-        errors.push({
+        reportParseWarning(errors, {
           message: `Invalid fontSize ${part} in inline attributes`,
           line,
           column,
-          severity: 'warning',
         });
       }
       continue;
@@ -290,11 +290,10 @@ function parseInlineAttrsNode(
   const endedByEof = scanner.eof();
 
   if (!closedBySlash && !closedByLineBreak && !closedByNextAttr && !endedByEof) {
-    ctx.errors.push({
+    reportParseWarning(ctx.errors, {
       message: 'Missing closing [/] for inline attributes',
       line: baseLine,
       column: startColumn,
-      severity: 'warning',
     });
     return `[${rawInside}]${segment}`;
   }
@@ -346,11 +345,10 @@ function parseLinkAfterLinkKeyword(
     }
 
     if (!attrClosed) {
-      ctx.errors.push({
+      reportParseWarning(ctx.errors, {
         message: 'Missing closing ] for link attribute',
         line: saveLine,
         column: saveColumn,
-        severity: 'warning',
       });
       return `[link][${attrInside}`;
     }
@@ -416,11 +414,10 @@ function parseLinkAfterLinkKeyword(
 
   const next = scanner.peek();
   if (next !== '(') {
-    ctx.errors.push({
+    reportParseWarning(ctx.errors, {
       message: 'Missing (url) after [link]text for inline link',
       line: scanner.line,
       column: scanner.column,
-      severity: 'warning',
     });
     return raw;
   }
@@ -442,11 +439,10 @@ function parseLinkAfterLinkKeyword(
 
   const href = url.trim();
   if (href.length === 0) {
-    ctx.errors.push({
+    reportParseWarning(ctx.errors, {
       message: 'Empty url in inline link',
       line: scanner.line,
       column: scanner.column,
-      severity: 'warning',
     });
     return `${raw}()`;
   }
@@ -501,11 +497,10 @@ export function parseBracketExpression(
   }
 
   if (!closed) {
-    ctx.errors.push({
+    reportParseWarning(ctx.errors, {
       message: 'Missing closing ] for bracket expression',
       line: startLine,
       column: startColumn,
-      severity: 'warning',
     });
     return `[${inside}`;
   }
@@ -561,11 +556,10 @@ export function parseBracketExpression(
       content += ch;
     }
 
-    ctx.errors.push({
+    reportParseWarning(ctx.errors, {
       message: 'Missing closing [/] for inline comment',
       line: startLine,
       column: startColumn,
-      severity: 'warning',
     });
     return `[comment]${content}`;
   }
@@ -611,11 +605,10 @@ export function parseBracketExpression(
       }
 
       if (!attrClosed) {
-        ctx.errors.push({
+        reportParseWarning(ctx.errors, {
           message: 'Missing closing ] for inline attributes',
           line: saveLine,
           column: saveColumn,
-          severity: 'warning',
         });
         return `[${mergedRawInside}][${attrInside}`;
       }

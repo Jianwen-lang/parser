@@ -1,4 +1,5 @@
 import { InlineNode } from '../../ast';
+import { reportParseWarning } from '../../diagnostics';
 import { InlineRule, InlineRuleContext, InlineScanner } from './types';
 
 export function readStyledSegment(
@@ -68,11 +69,10 @@ export function readStyledSegment(
     content += ch;
   }
 
-  ctx.errors.push({
+  reportParseWarning(ctx.errors, {
     message: 'Missing closing style delimiter',
     line: startLine,
     column: startColumn,
-    severity: 'warning',
   });
   return { type: 'text', value: `${marker}${content}` } as InlineNode;
 }

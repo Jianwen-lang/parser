@@ -4,8 +4,13 @@ import { CharScanner, createCharScanner } from '../lexer/lexer';
 import { getInlineRuleForChar } from './inline/rules';
 import { InlineRuleContext } from './inline/rules/types';
 
-export function parseInlines(text: string, errors: ParseError[], baseLine: number): InlineNode[] {
-  const scanner = createScanner(text, baseLine);
+export function parseInlines(
+  text: string,
+  errors: ParseError[],
+  baseLine: number,
+  baseColumn = 1,
+): InlineNode[] {
+  const scanner = createScanner(text, baseLine, baseColumn);
   const nodes: InlineNode[] = [];
   let buffer = '';
 
@@ -56,6 +61,6 @@ export function parseInlines(text: string, errors: ParseError[], baseLine: numbe
 
 type InlineScanner = CharScanner;
 
-function createScanner(text: string, baseLine: number): InlineScanner {
-  return createCharScanner(text, baseLine, 1);
+function createScanner(text: string, baseLine: number, baseColumn: number): InlineScanner {
+  return createCharScanner(text, baseLine, baseColumn);
 }

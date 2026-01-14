@@ -1,4 +1,5 @@
 import { InlineNode } from '../../ast';
+import { reportParseWarning } from '../../diagnostics';
 import { InlineRule, InlineRuleContext, InlineScanner } from './types';
 
 export function readBacktickSegment(
@@ -33,11 +34,10 @@ export function readBacktickSegment(
       value += ch;
     }
 
-    ctx.errors.push({
+    reportParseWarning(ctx.errors, {
       message: 'Missing closing backtick for inline code span',
       line: startLine,
       column: startColumn,
-      severity: 'warning',
     });
     return { type: 'text', value: `\`${value}` };
   }
@@ -78,11 +78,10 @@ export function readBacktickSegment(
     content += ch;
   }
 
-  ctx.errors.push({
+  reportParseWarning(ctx.errors, {
     message: 'Missing closing double backticks for frame highlight',
     line: startLine,
     column: startColumn,
-    severity: 'warning',
   });
   return { type: 'text', value: `${'`'.repeat(tickCount)}${content}` };
 }

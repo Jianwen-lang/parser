@@ -1,3 +1,4 @@
+import { reportParseWarning } from '../../diagnostics';
 import { InlineRule } from './types';
 
 export const disabledRule: InlineRule = {
@@ -25,11 +26,10 @@ export const disabledRule: InlineRule = {
       content += ch;
     }
 
-    ctx.errors.push({
+    reportParseWarning(ctx.errors, {
       message: 'Missing closing } for disabled inline segment',
       line: startLine,
       column: startColumn,
-      severity: 'warning',
     });
     return { kind: 'append', text: `{${content}` };
   },

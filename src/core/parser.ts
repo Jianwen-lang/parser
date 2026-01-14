@@ -7,6 +7,7 @@ import {
   TaggedBlock,
 } from './ast';
 import { ParseError, ParseResult } from './errors';
+import { prefixIncludeError, reportParseWarning } from './diagnostics';
 import { parseBlocks } from './block-parser';
 import { parseInlines } from './inline-parser';
 import { getNodeLocation, getNodeOrigin } from './location';
@@ -206,9 +207,9 @@ function isMetaEmpty(meta: JianwenMeta): boolean {
   return true;
 }
 
-function getInlineBaseLine(node: object): number {
+function getInlineBasePosition(node: object): { line: number; column: number } {
   const loc = getNodeLocation(node);
-  return loc?.line ?? 1;
+  return { line: loc?.line ?? 1, column: loc?.column ?? 1 };
 }
 
 function applyInlineParsing(blocks: BlockNode[], errors: ParseError[]): void {
@@ -218,7 +219,8 @@ function applyInlineParsing(blocks: BlockNode[], errors: ParseError[]): void {
       return;
     }
 
-    const parsed = parseInlines(text, errors, getInlineBaseLine(owner));
+    const base = getInlineBasePosition(owner);
+    const parsed = parseInlines(text, errors, base.line, base.column);
     if (owner && typeof owner === 'object' && 'children' in owner) {
       (owner as { children: InlineNode[] }).children = parsed;
     }
@@ -369,13 +371,11 @@ function expandSingleInclude(
     const taggedFromIndex = context.tagIndex.get(block.target);
     const tagged = taggedFromIndex ?? findTaggedBlock(document.children, block.target);
     if (!tagged) {
-      const error: ParseError = {
+      reportParseWarning(errors, {
         message: `Include tag target "${block.target}" not found`,
         line: includeLine,
         column: includeColumn,
-        severity: 'warning',
-      };
-      errors.push(error);
+      });
       return [block];
     }
     const cloned = cloneBlock(tagged.child);
@@ -383,42 +383,36 @@ function expandSingleInclude(
   }
 
   if (context.stack.length >= context.maxDepth) {
-    const error: ParseError = {
+    reportParseWarning(errors, {
       message: `Include max depth ${context.maxDepth} exceeded for target "${block.target}"`,
       line: includeLine,
       column: includeColumn,
-      severity: 'warning',
-    };
-    errors.push(error);
+    });
     return [block];
   }
 
   if (context.stack.indexOf(block.target) !== -1) {
-    const error: ParseError = {
+    reportParseWarning(errors, {
       message: `Include cycle detected for target "${block.target}"`,
       line: includeLine,
       column: includeColumn,
-      severity: 'warning',
-    };
-    errors.push(error);
+    });
     return [block];
   }
 
   if (!context.loadFile) {
-    const error: ParseError = {
+    reportParseWarning(errors, {
       message: `IncludeBlock with mode "file" requires loadFile option to expand target "${block.target}"`,
       line: includeLine,
       column: includeColumn,
-      severity: 'warning',
-    };
-    errors.push(error);
+    });
     return [block];
   }
 
   const cached = context.fileCache.get(block.target);
   if (cached) {
     for (const e of cached.errors) {
-      errors.push({ ...e, message: `[include:${block.target}] ${e.message}` });
+      errors.push(prefixIncludeError(e, block.target));
     }
     return cached.ast.children.map((child) => cloneBlock(child, { origin: block.target }));
   }
@@ -426,13 +420,11 @@ function expandSingleInclude(
   const nextStack = context.stack.concat(block.target);
   const source = context.loadFile(block.target, nextStack);
   if (source === undefined) {
-    const error: ParseError = {
+    reportParseWarning(errors, {
       message: `Include target "${block.target}" could not be loaded`,
       line: includeLine,
       column: includeColumn,
-      severity: 'warning',
-    };
-    errors.push(error);
+    });
     return [block];
   }
 
@@ -443,7 +435,7 @@ function expandSingleInclude(
   });
   context.fileCache.set(block.target, childResult);
   for (const e of childResult.errors) {
-    errors.push({ ...e, message: `[include:${block.target}] ${e.message}` });
+    errors.push(prefixIncludeError(e, block.target));
   }
   return childResult.ast.children.map((child) => cloneBlock(child, { origin: block.target }));
 }
@@ -466,13 +458,11 @@ function checkFootnotes(document: JianwenDocument, errors: ParseError[]): void {
   for (const [id, location] of referencedIds) {
     if (!defsById.has(id)) {
       const originSuffix = location.origin ? ` (from include "${location.origin}")` : '';
-      const error: ParseError = {
+      reportParseWarning(errors, {
         message: `Footnote reference "${id}" has no corresponding FootnoteDefBlock${originSuffix}`,
         line: location.line,
         column: location.column,
-        severity: 'warning',
-      };
-      errors.push(error);
+      });
     }
   }
 }

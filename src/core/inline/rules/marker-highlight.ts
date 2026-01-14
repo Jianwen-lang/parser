@@ -1,4 +1,5 @@
 import { InlineNode } from '../../ast';
+import { reportParseWarning } from '../../diagnostics';
 import { InlineRule, InlineRuleContext, InlineScanner } from './types';
 
 export function readMarkerHighlight(
@@ -41,11 +42,10 @@ export function readMarkerHighlight(
     content += ch;
   }
 
-  ctx.errors.push({
+  reportParseWarning(ctx.errors, {
     message: 'Missing closing = for marker highlight',
     line: startLine,
     column: startColumn,
-    severity: 'warning',
   });
   return { type: 'text', value: `=${content}` };
 }

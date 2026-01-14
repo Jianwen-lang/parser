@@ -22,6 +22,7 @@ import {
   TaskStatus,
 } from './ast';
 import { ParseError } from './errors';
+import { reportParseError, reportParseWarning } from './diagnostics';
 import { setNodeLocation } from './location';
 import { tryParseBlockRules } from './block/rules';
 import { matchHeading } from './block/rules/heading';
@@ -265,12 +266,10 @@ export function parseBlocks(source: string, errors: ParseError[]): BlockNode[] {
       }
 
       if (!closed) {
-        const error: ParseError = {
+        reportParseError(errors, {
           message: 'Code block is not closed with ```',
           line: i + 1,
-          severity: 'error',
-        };
-        errors.push(error);
+        });
       }
 
       const blockAttrs = buildBlockAttrs(pending, lineInfo.tabCount);
@@ -532,8 +531,8 @@ export function parseBlocks(source: string, errors: ParseError[]): BlockNode[] {
     }
     if (pending.isSheet && isTableRow(lineInfo.content)) {
       const rawLines: string[] = [lineInfo.raw];
-      const rowContents: { text: string; line: number }[] = [
-        { text: lineInfo.content, line: i + 1 },
+      const rowContents: { text: string; raw: string; line: number }[] = [
+        { text: lineInfo.content, raw: lineInfo.raw, line: i + 1 },
       ];
 
       let jTable = i + 1;
@@ -555,11 +554,11 @@ export function parseBlocks(source: string, errors: ParseError[]): BlockNode[] {
           break;
         }
         rawLines.push(nextInfo.raw);
-        rowContents.push({ text: nextInfo.content, line: jTable + 1 });
+        rowContents.push({ text: nextInfo.content, raw: nextInfo.raw, line: jTable + 1 });
         jTable += 1;
       }
 
-      const { rows, align } = parseTableRows(rowContents);
+      const { rows, align } = parseTableRows(rowContents, errors);
       const blockAttrs = buildBlockAttrs(pending, lineInfo.tabCount);
 
       let block: BlockNode;
@@ -1055,9 +1054,26 @@ interface ParsedTableRows {
   align?: ColumnAlign[];
 }
 
-function parseTableRows(lines: { text: string; line: number }[]): ParsedTableRows {
+function parseTableRows(
+  lines: { text: string; raw: string; line: number }[],
+  errors: ParseError[],
+): ParsedTableRows {
   if (lines.length === 0) {
     return { rows: [], align: undefined };
+  }
+
+  for (const line of lines) {
+    const trimmed = line.text.trim();
+    if (isTableRow(trimmed) && !trimmed.endsWith('|')) {
+      const contentStart = line.raw.length - line.text.length;
+      const trimmedContent = line.text.replace(/\s+$/, '');
+      const column = contentStart + trimmedContent.length + 1;
+      reportParseError(errors, {
+        message: 'Table row is missing closing "|" border',
+        line: line.line,
+        column,
+      });
+    }
   }
 
   const remaining = [...lines];
@@ -1368,7 +1384,8 @@ function matchListItem(
     const indent = dashes.length;
     const taskStatus = mapTaskStatus(markerInner);
     const text = textGroup.trimEnd();
-    return { kind: 'task', indent, taskStatus, text, line, column };
+    const textColumn = getListTextColumn(column, taskMatch[0], textGroup);
+    return { kind: 'task', indent, taskStatus, text, line, column: textColumn };
   }
 
   const orderedMatch = content.match(/^(\d+(?:\.\d+)*)\.?\s*(\[(.|..)?\])?(?:\s+(.*))?$/);
@@ -1384,7 +1401,8 @@ function matchListItem(
     const indent = ordinal.split('.').length;
     const taskStatus = markerGroup ? mapTaskStatus(markerInner) : undefined;
     const text = textGroup.trimEnd();
-    return { kind: 'ordered', indent, ordinal, taskStatus, text, line, column };
+    const textColumn = getListTextColumn(column, orderedMatch[0], textGroup);
+    return { kind: 'ordered', indent, ordinal, taskStatus, text, line, column: textColumn };
   }
 
   const foldableMatch = content.match(/^(\++)(\[(.|..)?\])?(?:\s+(.*))?$/);
@@ -1399,6 +1417,7 @@ function matchListItem(
     const indent = pluses.length;
     const taskStatus = markerGroup ? mapTaskStatus(markerInner) : undefined;
     const text = textGroup.trimEnd();
+    const textColumn = getListTextColumn(column, foldableMatch[0], textGroup);
     return {
       kind: 'foldable',
       indent,
@@ -1406,7 +1425,7 @@ function matchListItem(
       taskStatus,
       text,
       line,
-      column,
+      column: textColumn,
     };
   }
 
@@ -1419,10 +1438,23 @@ function matchListItem(
     }
     const indent = dashes.length;
     const text = textGroup.trimEnd();
-    return { kind: 'bullet', indent, text, line, column };
+    const textColumn = getListTextColumn(column, bulletMatch[0], textGroup);
+    return { kind: 'bullet', indent, text, line, column: textColumn };
   }
 
   return undefined;
+}
+
+function getListTextColumn(
+  baseColumn: number | undefined,
+  matchText: string,
+  rawText: string,
+): number | undefined {
+  if (baseColumn === undefined) {
+    return undefined;
+  }
+  const prefixLength = matchText.length - rawText.length;
+  return baseColumn + Math.max(0, prefixLength);
 }
 
 function mapTaskStatus(markerInner: string | undefined): TaskStatus {
@@ -1566,14 +1598,12 @@ function parseAttributeLine(
       if (part === '->' || part === '<-' || part === '<->') {
         arrowCount += 1;
         if (part === '->' && arrowCount > 2) {
-          const error: ParseError = {
+          reportParseWarning(errors, {
             message:
               'More than two [->] attributes in a row; extra [->] will be treated as plain text.',
             line: lineNumber,
-            severity: 'warning',
             code: MULTI_ARROW_WARNING_CODE,
-          };
-          errors.push(error);
+          });
           continue;
         }
         attrs = ensureBlockAttributes(attrs);
