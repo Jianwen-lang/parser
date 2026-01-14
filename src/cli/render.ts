@@ -21,6 +21,55 @@ interface CliOptions {
   includeMeta?: boolean;
 }
 
+const TAB_WIDTH = 4;
+
+function isCombiningCodePoint(code: number): boolean {
+  return (
+    (code >= 0x0300 && code <= 0x036f) ||
+    (code >= 0x1ab0 && code <= 0x1aff) ||
+    (code >= 0x1dc0 && code <= 0x1dff) ||
+    (code >= 0x20d0 && code <= 0x20ff) ||
+    (code >= 0xfe20 && code <= 0xfe2f)
+  );
+}
+
+function isFullWidthCodePoint(code: number): boolean {
+  return (
+    code >= 0x1100 &&
+    (code <= 0x115f ||
+      code === 0x2329 ||
+      code === 0x232a ||
+      (code >= 0x2e80 && code <= 0xa4cf && code !== 0x303f) ||
+      (code >= 0xac00 && code <= 0xd7a3) ||
+      (code >= 0xf900 && code <= 0xfaff) ||
+      (code >= 0xfe10 && code <= 0xfe19) ||
+      (code >= 0xfe30 && code <= 0xfe6f) ||
+      (code >= 0xff00 && code <= 0xff60) ||
+      (code >= 0xffe0 && code <= 0xffe6) ||
+      (code >= 0x20000 && code <= 0x3fffd))
+  );
+}
+
+function getDisplayWidth(value: string): number {
+  let width = 0;
+  for (const ch of value) {
+    if (ch === '\t') {
+      const nextStop = TAB_WIDTH - (width % TAB_WIDTH);
+      width += nextStop;
+      continue;
+    }
+    const code = ch.codePointAt(0);
+    if (code === undefined) {
+      continue;
+    }
+    if (isCombiningCodePoint(code)) {
+      continue;
+    }
+    width += isFullWidthCodePoint(code) ? 2 : 1;
+  }
+  return width;
+}
+
 function parseCliArgs(argv: string[]): CliOptions {
   const args = [...argv];
   const inputFilePath = args.shift();
@@ -145,6 +194,28 @@ export function runRenderCli(argv: string[]): void {
 
   const baseDir = path.dirname(absoluteInput);
   const source = fs.readFileSync(absoluteInput, 'utf-8');
+  const sourceLines = source.split(/\r?\n/);
+  const includeLineCache = new Map<string, string[]>();
+
+  const getIncludeLines = (target: string): string[] | undefined => {
+    if (includeLineCache.has(target)) {
+      return includeLineCache.get(target);
+    }
+    try {
+      const includePath = path.resolve(baseDir, target);
+      if (!fs.existsSync(includePath)) {
+        includeLineCache.set(target, []);
+        return undefined;
+      }
+      const includeSource = fs.readFileSync(includePath, 'utf-8');
+      const lines = includeSource.split(/\r?\n/);
+      includeLineCache.set(target, lines);
+      return lines;
+    } catch {
+      includeLineCache.set(target, []);
+      return undefined;
+    }
+  };
 
   const loadFile = (target: string): string | undefined => {
     try {
@@ -201,11 +272,39 @@ export function runRenderCli(argv: string[]): void {
     document: documentOptions,
   });
 
-  fs.writeFileSync(absoluteOutput, result.html, { encoding: 'utf8' });
-
   if (result.errors.length > 0) {
-    console.error(`Rendered with ${result.errors.length} parser warning(s)/error(s).`);
+    console.error(`Parser reported ${result.errors.length} warning(s)/error(s).`);
+    for (const error of result.errors) {
+      const includeMatch = /^\[include:([^\]]+)\]\s*/.exec(error.message);
+      const includeTarget = includeMatch?.[1];
+      const lines = includeTarget ? (getIncludeLines(includeTarget) ?? []) : sourceLines;
+      const lineText = lines[error.line - 1];
+      const rawColumn = Math.max(1, error.column ?? 1);
+      const safeColumn = lineText ? Math.min(rawColumn, lineText.length + 1) : rawColumn;
+      const location = `${error.line}:${rawColumn}`;
+      console.error(`${error.severity.toUpperCase()} ${location} ${error.message}`);
+
+      if (includeTarget) {
+        console.error(`  (from include: ${includeTarget})`);
+      }
+      if (lineText !== undefined) {
+        const prefixText = lineText.slice(0, safeColumn - 1);
+        const caretPos = getDisplayWidth(prefixText);
+        console.error(`  ${lineText}`);
+        console.error(`  ${' '.repeat(caretPos)}^`);
+      } else {
+        console.error('  (source line unavailable)');
+      }
+    }
+
+    const hasError = result.errors.some((error) => error.severity === 'error');
+    if (hasError) {
+      console.error('Render aborted due to parser errors.');
+      process.exit(1);
+    }
   }
+
+  fs.writeFileSync(absoluteOutput, result.html, { encoding: 'utf8' });
   console.log(`Rendered ${options.inputFilePath} -> ${options.outputFilePath}`);
 }
 
