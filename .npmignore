@@ -1,0 +1,23 @@
+# Exclude source and tooling from npm package; publish built output only
+src/
+tests/
+scripts/
+.github/
+coverage/
+node_modules/
+
+# Configs not needed at runtime
+tsconfig.json
+tsconfig.build.json
+jest.config.*
+eslint.config.*
+.eslintrc.*
+.prettierrc*
+.vscode/
+.idea/
+
+# Logs and temp files
+npm-debug.log*
+yarn-error.log*
+*.log
+*.tmp
