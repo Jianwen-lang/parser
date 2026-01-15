@@ -15,10 +15,11 @@
     "skipLibCheck": true,
     "moduleResolution": "node",
     "allowJs": true,
+    "rootDir": "src",
     "outDir": "dist",
     "lib": ["ES2024", "DOM"],
     "types": ["node", "jest"]
   },
-  "include": ["./src/**/*", "./tests/**/*.test.ts", "./scripts/**/*.ts"],
+  "include": ["./src/**/*"],
   "exclude": ["./dist"]
 }

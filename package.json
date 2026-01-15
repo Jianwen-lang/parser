@@ -7,8 +7,15 @@
   "publishConfig": {
     "access": "public"
   },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "clean": "node -e \"require('node:fs').rmSync('dist',{ recursive: true, force: true })\"",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "prepack": "npm run build",
     "test": "jest",
     "test:watch": "jest --watch",
     "render": "ts-node \"src/cli/render.ts\"",
