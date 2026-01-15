@@ -6,7 +6,7 @@ import { renderDocumentToHtml } from './render/html';
 import { RenderHtmlOptions, escapeAttr, escapeHtml } from './render/utils';
 import { DEFAULT_CSS } from './theme/theme';
 
-export const DEFAULT_RUNTIME_SRC = 'dist/src/html/theme/runtime.js';
+export const DEFAULT_RUNTIME_SRC = 'dist/html/theme/runtime.js';
 
 export interface HtmlDocumentOptions {
   title?: string;
