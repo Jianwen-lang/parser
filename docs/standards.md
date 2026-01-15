@@ -6,9 +6,9 @@
 
 ### 1.1 范围
 
-- **解析（Core）**：把 `.jw` 文本解析为 AST，并产出诊断信息。实现位于 `parser/parser/src/core/*`。
-- **渲染（HTML）**：把 AST 渲染为 HTML 字符串，并提供内置主题 CSS 与可选 runtime。实现位于 `parser/parser/src/html/*`。
-- **CLI/脚本**：仓库内调试入口。实现位于 `parser/parser/src/cli/*` 与 `parser/parser/scripts/*`。
+- **解析（Core）**：把 `.jw` 文本解析为 AST，并产出诊断信息。实现位于 `src/core/*`。
+- **渲染（HTML）**：把 AST 渲染为 HTML 字符串，并提供内置主题 CSS 与可选 runtime。实现位于 `src/html/*`。
+- **CLI/脚本**：仓库内调试入口。实现位于 `src/cli/*` 与 `scripts/*`。
 
 ### 1.2 目标
 
@@ -18,17 +18,17 @@
 
 ### 1.3 非目标（当前实现不做/不保证）
 
-- 不在解析阶段做复杂的语义分析（例如跨文档链接校验、引用重排等）；目前仅包含 include 展开与脚注引用存在性检查。
+- 不在解析阶段做复杂的语义分析（例如跨文档链接校验、引用重排等）；仅包含 include 展开与脚注引用存在性检查。
 - 不在核心解析阶段依赖文件系统或网络；文件 include 由 `loadFile` 注入。
 
 ## 2. 对外 API（推荐使用入口）
 
-公共入口统一从 `parser/parser/src/parser.ts` 导出（库使用者直接依赖该入口而不是复制脚本逻辑）：
+公共入口统一从 `src/parser.ts` 导出（库使用者直接依赖该入口而不是复制脚本逻辑）：
 
-- 解析：`parseJianwen`、`parseJianwenWithErrors`（实现在 `parser/parser/src/core/parser.ts`）
-- AST/诊断类型：`parser/parser/src/core/ast.ts`、`parser/parser/src/core/errors.ts`
-- HTML：`renderDocumentToHtml`、`renderJianwenToHtmlDocument`、`buildHtmlDocument`（`parser/parser/src/html/*`）
-- 主题：`DocumentTheme`、`DEFAULT_CSS`（`parser/parser/src/html/theme/theme.ts`）
+- 解析：`parseJianwen`、`parseJianwenWithErrors`（实现在 `src/core/parser.ts`）
+- AST/诊断类型：`src/core/ast.ts`、`src/core/errors.ts`
+- HTML：`renderDocumentToHtml`、`renderJianwenToHtmlDocument`、`buildHtmlDocument`（`src/html/*`）
+- 主题：`DocumentTheme`、`DEFAULT_CSS`（`src/html/theme/theme.ts`）
 
 核心配置项（与实现一致）：
 
@@ -59,7 +59,7 @@ export interface RenderHtmlOptions {
 ## 3. 目录结构（按当前实现）
 
 ```text
-parser/parser/src/
+src/
   parser.ts                 # 对外导出聚合入口
   lexer/lexer.ts             # 行/字符扫描基础设施
   core/
@@ -79,7 +79,7 @@ parser/parser/src/
     theme/*                  # base/light/dark CSS 与 runtime
     format.ts                # HTML 格式化（可选）
   cli/render.ts              # CLI 渲染入口（ts-node 调试/脚本复用）
-parser/parser/scripts/
+scripts/
   test-render.ts             # 调试脚本：转调 runRenderCli 并追加常用 flag
 ```
 
@@ -87,11 +87,11 @@ parser/parser/scripts/
 
 ### 4.1 AST 的唯一真相
 
-AST 以 `parser/parser/src/core/ast.ts` 为准；本文档只描述关键约定，不重复粘贴全部类型定义。
+AST 以 `src/core/ast.ts` 为准；本文档只描述关键约定，不重复粘贴全部类型定义。
 
 ### 4.2 文档元信息（Initialization Template）
 
-`parser/parser/src/core/parser.ts` 支持在文首解析“初始化模板”：
+`src/core/parser.ts` 支持在文首解析“初始化模板”：
 
 - 模板边界：两行仅由 `_` 组成的非空行（忽略首尾空白）。
 - 模板内容：从每行的第一个 `[` 起扫描，匹配若干段 `[...] = ...`，支持的 key：
@@ -107,7 +107,7 @@ AST 以 `parser/parser/src/core/ast.ts` 为准；本文档只描述关键约定�
 
 ### 4.3 location / origin（非枚举元数据）
 
-节点位置信息与 include 来源信息由 `parser/parser/src/core/location.ts` 管理：
+节点位置信息与 include 来源信息由 `src/core/location.ts` 管理：
 
 - `setNodeLocation(node, { line, column })`：用于 diagnostics 与调试。
 - `setNodeOrigin(node, origin)`：用于标记 include 来源（例如文件名）。
@@ -125,13 +125,13 @@ AST 以 `parser/parser/src/core/ast.ts` 为准；本文档只描述关键约定�
 - `BlockAttributes` 在 `InlineAttributes` 基础上追加：
   - `align`：`left|center|right`
   - `position`：`L|C|R`（与同一行布局相关）
-  - `truncateRight`（当前由 `[<-]` / `[<->]` 产出），`truncateLeft` 预留
+  - `truncateRight`（由 `[<-]` / `[<->]` 产出）
   - `fold`：用于 foldable section
   - `sameLine`：用于同一行多列布局（`[->]`）
 
-## 5. 解析流程（从源码视角）
+## 5. 解析流程
 
-整体流程在 `parser/parser/src/core/parser.ts`：
+整体流程在 `src/core/parser.ts`：
 
 1. `parseInitializationTemplate(source)`：抽取 `meta` 并得到 `body`。
 2. `parseBlocks(body, errors)`：块级解析，得到 `BlockNode[]`。
@@ -143,7 +143,7 @@ AST 以 `parser/parser/src/core/ast.ts` 为准；本文档只描述关键约定�
 
 ## 6. 块级解析（Block Parser）
 
-块级解析位于 `parser/parser/src/core/block-parser.ts`，核心特点是：
+块级解析位于 `src/core/block-parser.ts`，核心特点是：
 
 - **按行扫描**，空行分隔 block。
 - 使用 `lexer/getLineInfo` 识别行首 Tab（最多 2 个）并计算 `tabCount`：
@@ -170,25 +170,25 @@ AST 以 `parser/parser/src/core/ast.ts` 为准；本文档只描述关键约定�
 - 区块标签：
   - `[tag=name]` / `[t=name]` / `[f=name]`：把下一块包装成 `TaggedBlock`
 
-### 6.2 块类型与优先级（关键点）
+### 6.2 块类型与优先级
 
 当前实现存在两层“块规则”：
 
-- `parser/parser/src/core/block/rules/*`：集中注册的规则（目前有 include/heading/hr）
+- `src/core/block/rules/*`：集中注册的规则（include/heading/hr）
 - `block-parser.ts` 内的其他专用解析分支（列表、引用、代码块、表格、图片、html、脚注区域等）
 
 解析优先级以 `block-parser.ts` 的实际顺序为准；扩展新语法时优先按现有模式把逻辑落到 `core/block/rules/*` 并在 `core/block/rules/index.ts` 注册，避免继续扩大 `block-parser.ts` 的单文件复杂度。
 
-### 6.3 已实现的块语法摘要（与实现一致）
+### 6.3 已实现的块语法摘要
 
 - 标题：`#{1,5} 文本`；可折叠标题：`#{1,5}+ 文本`
   - `#+`（foldable）会在提交 block 后设置 `pending.foldNext=true`，使紧随的下一块默认带 `fold=true`
 - 引用：`@ 文本` / `@@ 文本` …（同层级连续行合并；内部递归 `parseBlocks` 并修正嵌套 level）
 - 代码块：行首 ` ```lang? ` 开启，直到单独 ` ``` ` 结束
-  - 支持 `[...]```lang?` 形式（目前用于 `[html]```）
+  - 支持 `[...]```lang?` 形式，用于在同一行叠加属性（例如 `[html]```）
   - `pending.isHtml` 或 `[html]``` 会让 `CodeBlock.htmlLike=true`
 - 分割线：`---` / `***` / `===` / `~~~`（>=3 个同字符），支持前置颜色：`[red]-----`
-- 表格：在 `[sheet]` pending 状态下，连续的 `|...|` 行解析为 `TableBlock`
+- 表格：在 `[sheet]` 生效时，连续的 `|...|` 行解析为 `TableBlock`
   - 支持“对齐行”作为第一行（Jianwen 语法）或第二行（Markdown 兼容）
   - 单元格可用前缀 `[c]`/`[r]` 覆盖对齐
 - 图片：`[img](url)`；`[]` 内必须包含 `img`，并支持 `rounded`/`square`/`rounded=1.2`
@@ -207,7 +207,7 @@ AST 以 `parser/parser/src/core/ast.ts` 为准；本文档只描述关键约定�
 
 ## 7. 行内解析（Inline Parser）
 
-行内解析位于 `parser/parser/src/core/inline-parser.ts` 与 `parser/parser/src/core/inline/rules/*`：
+行内解析位于 `src/core/inline-parser.ts` 与 `src/core/inline/rules/*`：
 
 - 基于 `lexer/createCharScanner` 扫描。
 - 以“首字符分发”的方式选择 rule（`inline/rules/index.ts`），避免每字符 O(N) 规则尝试。
@@ -245,7 +245,7 @@ AST 以 `parser/parser/src/core/ast.ts` 为准；本文档只描述关键约定�
 
 ## 8. Include 展开与脚注检查（Post-process）
 
-### 8.1 Include（`parser/parser/src/core/parser.ts`）
+### 8.1 Include（`src/core/parser.ts`）
 
 include 在 AST 中是 `IncludeBlock { mode:'file'|'tag', target }`，展开逻辑在 `postProcessDocument`：
 
@@ -285,7 +285,7 @@ include 在 AST 中是 `IncludeBlock { mode:'file'|'tag', target }`，展开逻�
 
 ### 9.2 主题 CSS
 
-主题位于 `parser/parser/src/html/theme/*`：
+主题位于 `src/html/theme/*`：
 
 - `base/css.js`：结构与组件样式（布局、代码块、列表、meta 等）
 - `light/css.js`：默认变量（无需 `data-jw-theme`）
@@ -296,12 +296,12 @@ include 在 AST 中是 `IncludeBlock { mode:'file'|'tag', target }`，展开逻�
 
 ### 9.3 runtime（可选）
 
-`parser/parser/src/html/theme/runtime.js` 提供非常小的 runtime，只做主题切换：
+`src/html/theme/runtime.js` 提供非常小的 runtime，只做主题切换：
 
 - `window.JianwenTheme.setTheme(theme)`
 - `window.JianwenTheme.toggleTheme()`
 
-是否注入 runtime 由 `buildHtmlDocument`/CLI 参数控制；编译后默认路径为 `dist/src/html/theme/runtime.js`（见 `DEFAULT_RUNTIME_SRC`）。
+是否注入 runtime 由 `buildHtmlDocument`/CLI 参数控制；编译后默认路径为 `dist/html/theme/runtime.js`（见 `DEFAULT_RUNTIME_SRC`）。
 
 ### 9.4 资源路径与 include 渲染钩子
 
@@ -311,7 +311,7 @@ include 在 AST 中是 `IncludeBlock { mode:'file'|'tag', target }`，展开逻�
 
 ## 10. CLI/脚本（仓库内调试）
 
-CLI 位于 `parser/parser/src/cli/render.ts`，对应 `parser/parser/package.json`：
+CLI 位于 `src/cli/render.ts`，对应仓库根目录 `package.json`：
 
 - `npm run render -- "<input.jw>" [options]`
 
@@ -327,25 +327,25 @@ CLI 位于 `parser/parser/src/cli/render.ts`，对应 `parser/parser/package.jso
 - `--comments`：渲染 comment 节点
 - `--no-meta`：不渲染 meta header
 
-调试脚本 `parser/parser/scripts/test-render.ts` 会转调 `runRenderCli` 并自动追加 `--format --comments --runtime`，便于快速查看效果。
+调试脚本 `scripts/test-render.ts` 会转调 `runRenderCli` 并自动追加 `--format --comments --runtime`，便于快速查看效果。
 
 ## 11. 扩展指南（新增语法/节点）
 
 ### 11.1 新增块级语法
 
-1. 在 `parser/parser/src/core/ast.ts` 增加/扩展节点类型。
-2. 优先在 `parser/parser/src/core/block/rules/` 新建规则文件，并在 `rules/index.ts` 注册（注意顺序即优先级）。
-3. 必要时在 `parser/parser/src/html/render/blocks.ts` 增加渲染分支。
-4. 在 `parser/parser/tests/` 增加测试与快照（语法变化必须有测试）。
+1. 在 `src/core/ast.ts` 增加/扩展节点类型。
+2. 优先在 `src/core/block/rules/` 新建规则文件，并在 `rules/index.ts` 注册（注意顺序即优先级）。
+3. 必要时在 `src/html/render/blocks.ts` 增加渲染分支。
+4. 在 `tests/` 增加测试与快照（语法变化必须有测试）。
 
 ### 11.2 新增行内语法
 
 1. 扩展 `InlineNode` 与相关节点字段（`core/ast.ts`）。
-2. 新增 `parser/parser/src/core/inline/rules/*.ts`，并在 `inline/rules/index.ts` 按首字符注册。
-3. 更新 `parser/parser/src/html/render/inlines.ts` 的渲染逻辑（如需）。
+2. 新增 `src/core/inline/rules/*.ts`，并在 `inline/rules/index.ts` 按首字符注册。
+3. 更新 `src/html/render/inlines.ts` 的渲染逻辑（如需）。
 4. 补测试与快照。
 
-## 12. 实践约束（避免实现再次漂移）
+## 12. 实践约束
 
 - AST/诊断/渲染输出的“规范性描述”一律以源码为准：本文档只写“当前实现是什么/为何如此/如何扩展”，不写脱离实现的理想模型。
-- 如果你修改了解析语义（尤其是 include、布局、meta），应同步更新本文档对应小节与测试，避免再次出现“文档与实现偏离”的情况。
+- 如果你修改了解析语义（尤其是 include、布局、meta），应同步更新本文档对应小节与测试。
