@@ -1,4 +1,4 @@
-# @jianwen-lang/parser
+# @jianwen--lang/parser
 
 Jianwen（简文）是一种类似 Markdown 的轻量级标记语言，针对网页博客、公众号等内容发布场景的排版能力进行优化。本包提供 Jianwen 的 **TypeScript 核心解析器**（输出结构化 AST）以及 **HTML 渲染器**，用于在编辑器、渲染服务、静态站点生成等场景复用同一套解析语义。
 
@@ -9,13 +9,13 @@ Jianwen（简文）是一种类似 Markdown 的轻量级标记语言，针对网
 ## 安装
 
 ```bash
-npm i @jianwen-lang/parser
+npm i @jianwen--lang/parser
 ```
 
 ## 快速开始：解析为 AST
 
 ```ts
-import { parseJianwenWithErrors } from '@jianwen-lang/parser';
+import { parseJianwenWithErrors } from '@jianwen--lang/parser';
 
 const source = `
 # 标题
@@ -39,7 +39,7 @@ console.log(ast.type); // "document"
 ## 渲染：AST -> HTML
 
 ```ts
-import { parseJianwenWithErrors, renderDocumentToHtml } from '@jianwen-lang/parser';
+import { parseJianwenWithErrors, renderDocumentToHtml } from '@jianwen--lang/parser';
 
 const { ast, errors } = parseJianwenWithErrors(source);
 const html = renderDocumentToHtml(ast, { includeMeta: true, format: true });
@@ -48,7 +48,7 @@ const html = renderDocumentToHtml(ast, { includeMeta: true, format: true });
 如果你希望直接得到完整 HTML 文档（含 `<html>`/`<head>`/`<body>` 与默认 CSS）：
 
 ```ts
-import { renderJianwenToHtmlDocument } from '@jianwen-lang/parser';
+import { renderJianwenToHtmlDocument } from '@jianwen--lang/parser';
 
 const { html, ast, errors } = renderJianwenToHtmlDocument(source, {
   document: { format: true },
@@ -60,7 +60,7 @@ const { html, ast, errors } = renderJianwenToHtmlDocument(source, {
 解析阶段支持将 `[@](path)`（文件 include）或 `[@=tag]`（标签 include）按需展开。开启方式：
 
 ```ts
-import { parseJianwenWithErrors } from '@jianwen-lang/parser';
+import { parseJianwenWithErrors } from '@jianwen--lang/parser';
 import * as fs from 'node:fs';
 
 const { ast, errors } = parseJianwenWithErrors(source, {

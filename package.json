@@ -1,5 +1,5 @@
 {
-  "name": "@jianwen-lang/parser",
+  "name": "@jianwen--lang/parser",
   "version": "0.1.0",
   "description": "JianWen language parser implemented in TypeScript",
   "main": "dist/parser.js",
