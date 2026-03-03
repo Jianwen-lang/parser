@@ -4,6 +4,10 @@
   "description": "JianWen language parser implemented in TypeScript",
   "main": "dist/parser.js",
   "types": "dist/parser.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jianwen-lang/parser.git"
+  },
   "publishConfig": {
     "access": "public"
   },
