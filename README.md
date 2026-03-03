@@ -1,4 +1,4 @@
-# @jianwen-lang/parser `0.1.0`
+# @jianwen-lang/parser `0.1.2`
 
 Jianwen（简文）是一种类似 Markdown 的轻量级标记语言，针对网页博客、公众号等内容发布场景的排版能力进行优化。本包提供 Jianwen 的 **TypeScript 核心解析器**（输出结构化 AST）以及 **HTML 渲染器**，用于在编辑器、渲染服务、静态站点生成等场景复用同一套解析语义。
 
@@ -55,6 +55,19 @@ const { html, ast, errors } = renderJianwenToHtmlDocument(source, {
 });
 ```
 
+如果你在做编辑器并需要“渲染区块 ↔ 源码行范围”映射（例如拖拽区块后回写源码），可以使用：
+
+```ts
+import { renderJianwenToHtmlDocumentWithBlockMap } from '@jianwen-lang/parser';
+
+const result = renderJianwenToHtmlDocumentWithBlockMap(source, {
+  document: { format: true },
+});
+
+console.log(result.groups);
+// [{ id, kind, startLine, endLine, readOnly, origin? }, ...]
+```
+
 ## Include：文件/标签展开（可选）
 
 解析阶段支持将 `[@](path)`（文件 include）或 `[@=tag]`（标签 include）按需展开。开启方式：
@@ -83,7 +96,9 @@ const { ast, errors } = parseJianwenWithErrors(source, {
   - `ParseOptions`：`expandInclude` / `includeMaxDepth` / `loadFile`
 - 渲染
   - `renderDocumentToHtml(doc, options?) => string`
+  - `renderDocumentToHtmlWithBlockMap(doc, options?) => { html; groups }`
   - `renderJianwenToHtmlDocument(source, options?) => { html; ast; errors }`
+  - `renderJianwenToHtmlDocumentWithBlockMap(source, options?) => { html; ast; errors; groups }`
   - `buildHtmlDocument(bodyHtml, options?) => string`
 
 ## 规范与扩展

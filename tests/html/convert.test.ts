@@ -1,6 +1,7 @@
 import {
   buildHtmlDocument,
   renderJianwenToHtmlDocument,
+  renderJianwenToHtmlDocumentWithBlockMap,
   DEFAULT_RUNTIME_SRC,
 } from '../../src/html/convert';
 import { DEFAULT_CSS } from '../../src/html/theme/theme';
@@ -36,5 +37,17 @@ describe('html/convert', () => {
     expect(result.errors).toEqual([]);
     expect(result.html).toContain('class="jw-root"');
     expect(result.html).toContain('data-jw-theme="dark"');
+  });
+
+  it('renderJianwenToHtmlDocumentWithBlockMap returns rendered groups', () => {
+    const result = renderJianwenToHtmlDocumentWithBlockMap('# A\n\nB\n', {
+      document: { includeCss: false },
+    });
+
+    expect(result.errors).toEqual([]);
+    expect(result.groups.length).toBe(2);
+    expect(result.groups[0]?.startLine).toBe(1);
+    expect(result.groups[1]?.startLine).toBe(3);
+    expect(result.html).toContain('data-jw-group-id="g-0"');
   });
 });

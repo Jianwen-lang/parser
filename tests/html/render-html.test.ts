@@ -10,8 +10,10 @@ import {
 import {
   renderBlocksToHtml,
   renderDocumentToHtml,
+  renderDocumentToHtmlWithBlockMap,
   renderInlinesToHtml,
 } from '../../src/html/render/html';
+import { parseJianwen } from '../../src/core/parser';
 
 describe('render-html - document and meta', () => {
   it('renders document wrapper and meta when includeMeta is true', () => {
@@ -97,6 +99,23 @@ describe('render-html - document and meta', () => {
     const html = renderDocumentToHtml(doc, { includeMeta: false });
 
     expect(html).toContain('data-jw-global-font="mono slim"');
+  });
+
+  it('renders block groups and emits block ids by default', () => {
+    const source = ['#+ 标题', '', '[fold]', '折叠内容', '', '普通段落'].join('\n');
+    const doc = parseJianwen(source);
+
+    const rendered = renderDocumentToHtmlWithBlockMap(doc, { includeMeta: false });
+
+    expect(rendered.groups.length).toBe(2);
+    expect(rendered.groups[0]?.kind).toBe('foldable');
+    expect(rendered.groups[0]?.startLine).toBe(1);
+    expect(rendered.groups[0]?.endLine).toBe(5);
+    expect(rendered.groups[1]?.kind).toBe('single');
+    expect(rendered.groups[1]?.startLine).toBe(6);
+    expect(rendered.groups[1]?.endLine).toBe(6);
+    expect(rendered.html).toContain('data-jw-group-id="g-0"');
+    expect(rendered.html).toContain('data-jw-group-id="g-1"');
   });
 });
 

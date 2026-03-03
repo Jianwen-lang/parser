@@ -2,7 +2,11 @@ import { parseJianwenWithErrors, ParseOptions } from '../core/parser';
 import { JianwenDocument } from '../core/ast';
 import { ParseError } from '../core/errors';
 import { formatHtml } from './format';
-import { renderDocumentToHtml } from './render/html';
+import {
+  renderDocumentToHtml,
+  renderDocumentToHtmlWithBlockMap,
+  RenderedBlockGroup,
+} from './render/html';
 import { RenderHtmlOptions, escapeAttr, escapeHtml } from './render/utils';
 import { DEFAULT_CSS } from './theme/theme';
 
@@ -34,6 +38,13 @@ export interface RenderJianwenToHtmlDocumentResult {
   html: string;
   ast: JianwenDocument;
   errors: ParseError[];
+}
+
+export interface RenderJianwenToHtmlDocumentWithBlockMapResult {
+  html: string;
+  ast: JianwenDocument;
+  errors: ParseError[];
+  groups: RenderedBlockGroup[];
 }
 
 export function buildHtmlDocument(bodyHtml: string, options: HtmlDocumentOptions = {}): string {
@@ -98,4 +109,33 @@ export function renderJianwenToHtmlDocument(
   });
 
   return { html, ast: parseResult.ast, errors: parseResult.errors };
+}
+
+export function renderJianwenToHtmlDocumentWithBlockMap(
+  source: string,
+  options: RenderJianwenToHtmlDocumentOptions = {},
+): RenderJianwenToHtmlDocumentWithBlockMapResult {
+  const parseResult = parseJianwenWithErrors(source, options.parse);
+
+  const renderOptions: RenderHtmlOptions = {
+    includeMeta: true,
+    includeComments: false,
+    emitBlockMeta: true,
+    ...options.render,
+  };
+
+  const rendered = renderDocumentToHtmlWithBlockMap(parseResult.ast, renderOptions);
+
+  const title = options.document?.title ?? parseResult.ast.meta?.title;
+  const html = buildHtmlDocument(rendered.html, {
+    ...options.document,
+    title,
+  });
+
+  return {
+    html,
+    ast: parseResult.ast,
+    errors: parseResult.errors,
+    groups: rendered.groups,
+  };
 }

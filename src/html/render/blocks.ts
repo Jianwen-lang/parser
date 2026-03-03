@@ -19,15 +19,78 @@ import {
   escapeHtml,
 } from './utils';
 import { renderInlinesToHtml } from './inlines';
+import { getNodeLocation, getNodeOrigin } from '../../core/location';
+
+export type RenderBlockGroupKind = 'single' | 'sameLine' | 'foldable';
+
+export interface RenderBlockGroupDraft {
+  id: string;
+  kind: RenderBlockGroupKind;
+  startBlockIndex: number;
+  endBlockIndex: number;
+  startLine?: number;
+  origin?: string;
+  readOnly: boolean;
+}
+
+export interface RenderBlocksResult {
+  html: string;
+  groups: RenderBlockGroupDraft[];
+}
 
 export function renderBlocksToHtml(blocks: BlockNode[], options: RenderHtmlOptions = {}): string {
+  return renderBlocksToHtmlWithGroups(blocks, options).html;
+}
+
+export function renderBlocksToHtmlWithGroups(
+  blocks: BlockNode[],
+  options: RenderHtmlOptions = {},
+): RenderBlocksResult {
   const result: string[] = [];
+  const groups: RenderBlockGroupDraft[] = [];
   let i = 0;
 
-  function wrapBlock(html: string): string {
+  function buildGroupDraft(
+    kind: RenderBlockGroupKind,
+    blockList: BlockNode[],
+    startBlockIndex: number,
+  ): RenderBlockGroupDraft {
+    const endBlockIndex = startBlockIndex + blockList.length - 1;
+    let startLine: number | undefined;
+
+    const origins = new Set<string>();
+    for (const block of blockList) {
+      const location = getNodeLocation(block);
+      if (location && (startLine === undefined || location.line < startLine)) {
+        startLine = location.line;
+      }
+      const origin = getNodeOrigin(block);
+      if (origin) {
+        origins.add(origin);
+      }
+    }
+
+    const origin = origins.size === 1 ? Array.from(origins)[0] : undefined;
+    const hasIncludeBlock = blockList.some((block) => block.type === 'include');
+    const readOnly = origins.size > 0 || hasIncludeBlock;
+
+    return {
+      id: `g-${groups.length}`,
+      kind,
+      startBlockIndex,
+      endBlockIndex,
+      startLine,
+      origin,
+      readOnly,
+    };
+  }
+
+  function wrapBlock(html: string, group?: RenderBlockGroupDraft): string {
     if (!html || !html.trim()) return '';
     if (options.suppressBlockWrapper) return html;
-    return `<div class="jw-block">${html}</div>`;
+    const dataAttr =
+      options.emitBlockMeta && group ? ` data-jw-group-id="${escapeAttr(group.id)}"` : '';
+    return `<div class="jw-block"${dataAttr}>${html}</div>`;
   }
 
   while (i < blocks.length) {
@@ -59,7 +122,10 @@ export function renderBlocksToHtml(blocks: BlockNode[], options: RenderHtmlOptio
 
       const detailsContent = foldedBlocks.join('');
       const detailsHtml = `<details class="jw-foldable-section">${headingHtml}${detailsContent}</details>`;
-      result.push(wrapBlock(detailsHtml));
+      const groupBlocks = blocks.slice(i, j).filter((item): item is BlockNode => Boolean(item));
+      const group = buildGroupDraft('foldable', groupBlocks, i);
+      groups.push(group);
+      result.push(wrapBlock(detailsHtml, group));
       i = j;
       continue;
     }
@@ -67,7 +133,9 @@ export function renderBlocksToHtml(blocks: BlockNode[], options: RenderHtmlOptio
     const blockAttrs = 'blockAttrs' in block ? block.blockAttrs : undefined;
 
     if (!blockAttrs?.sameLine) {
-      result.push(wrapBlock(renderBlockToHtml(block, options)));
+      const group = buildGroupDraft('single', [block], i);
+      groups.push(group);
+      result.push(wrapBlock(renderBlockToHtml(block, options), group));
       i++;
       continue;
     }
@@ -108,12 +176,17 @@ export function renderBlocksToHtml(blocks: BlockNode[], options: RenderHtmlOptio
     }
 
     const rowHtml = rowBlocks.map((b) => renderBlockToHtml(b, options)).join('');
-    result.push(wrapBlock(`<div class="jw-same-line-row">${rowHtml}</div>`));
+    const group = buildGroupDraft('sameLine', rowBlocks, rowStartIndex);
+    groups.push(group);
+    result.push(wrapBlock(`<div class="jw-same-line-row">${rowHtml}</div>`, group));
 
     i = rowStartIndex + rowBlocks.length;
   }
 
-  return result.join('');
+  return {
+    html: result.join(''),
+    groups,
+  };
 }
 
 export function renderBlockToHtml(block: BlockNode, options: RenderHtmlOptions): string {

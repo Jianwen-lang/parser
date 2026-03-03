@@ -4,6 +4,7 @@ import { DocumentTheme, PRESET_COLORS } from '../theme/theme';
 export interface RenderHtmlOptions {
   includeMeta?: boolean;
   includeComments?: boolean;
+  emitBlockMeta?: boolean;
   resolveHtmlSource?: (source: string) => string | undefined;
   resolveInclude?: (mode: 'file' | 'tag', target: string) => string | undefined;
   resolveAssetPath?: (assetPath: string) => string | undefined;
