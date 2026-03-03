@@ -1,4 +1,4 @@
-# @jianwen-lang/parser
+# @jianwen-lang/parser `0.1.0`
 
 Jianwen（简文）是一种类似 Markdown 的轻量级标记语言，针对网页博客、公众号等内容发布场景的排版能力进行优化。本包提供 Jianwen 的 **TypeScript 核心解析器**（输出结构化 AST）以及 **HTML 渲染器**，用于在编辑器、渲染服务、静态站点生成等场景复用同一套解析语义。
 
