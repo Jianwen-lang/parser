@@ -1,9 +1,4 @@
 const BASE_CSS = `
-html,
-body {
-  margin: 0;
-  padding: 0;
-}
 .jw-root {
   background-color: var(--jw-bg-color, transparent);
   color: var(--jw-text-color, inherit);
@@ -12,14 +7,46 @@ body {
 }
 .jw-root > .jw-block + .jw-block { margin-top: var(--jw-block-spacing); }
 .jw-root > .jw-block { margin: 0; }
-.jw-table { border-collapse: collapse; }
-.jw-table-cell { border: 1px solid var(--jw-border-color); padding: 0.5em; }
+.jw-table { border-collapse: collapse; width: 100%; }
+.jw-table-cell {
+  border: 1px solid var(--jw-table-border-color, var(--jw-border-color));
+  padding: 0.5em;
+}
+.jw-table thead .jw-table-cell {
+  background: var(--jw-table-header-bg, var(--jw-surface-overlay-1));
+  color: var(--jw-table-header-text, var(--jw-text-strong));
+  font-weight: 600;
+}
+.jw-table tbody .jw-table-row:nth-child(odd) .jw-table-cell {
+  background: var(--jw-table-row-bg, transparent);
+}
+.jw-table tbody .jw-table-row:nth-child(even) .jw-table-cell {
+  background: var(--jw-table-row-alt-bg, transparent);
+}
 .jw-link { text-decoration: none; color: var(--jw-link-color, currentColor); }
 .jw-link:visited { color: var(--jw-link-color, currentColor); }
 .jw-link:hover { text-decoration: underline; }
-.jw-underline { text-decoration: underline; }
-.jw-strike { text-decoration: line-through; }
-.jw-wave { text-decoration: underline; text-decoration-style: wavy; }
+.jw-root strong {
+  color: var(--jw-strong-color, currentColor);
+  font-weight: var(--jw-strong-weight, 700);
+}
+.jw-underline {
+  text-decoration: underline;
+  text-decoration-color: var(--jw-underline-color, currentColor);
+  text-decoration-thickness: var(--jw-underline-thickness, from-font);
+  text-underline-offset: var(--jw-underline-offset, auto);
+}
+.jw-strike {
+  text-decoration: line-through;
+  text-decoration-color: var(--jw-strike-color, currentColor);
+}
+.jw-wave {
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: var(--jw-wave-color, currentColor);
+  text-decoration-thickness: var(--jw-underline-thickness, from-font);
+  text-underline-offset: var(--jw-underline-offset, auto);
+}
 .jw-heading { font-weight: bold; margin: 0; }
 .jw-heading.level-1 { font-size: 2.5em; }
 .jw-heading.level-2 { font-size: 2em; }
@@ -270,8 +297,8 @@ body {
   display: flex;
   flex-direction: column;
   padding: 0;
-  background: var(--jw-surface-code);
-  border: 1px solid var(--jw-border-color-subtle);
+  background: var(--jw-code-block-bg, var(--jw-surface-code));
+  border: 1px solid var(--jw-code-border-color, var(--jw-border-color-subtle));
   border-radius: 4px;
   font-family: "JetBrains Mono", "Fira Code", Consolas, Menlo, monospace;
   font-size: 0.9em;
@@ -283,13 +310,14 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 0.5em 0.75em;
-  border-bottom: 1px solid var(--jw-border-color-subtle);
-  background: var(--jw-surface-overlay-1);
+  border-bottom: 1px solid var(--jw-code-border-color, var(--jw-border-color-subtle));
+  background: var(--jw-code-header-bg, var(--jw-surface-overlay-1));
+  color: var(--jw-code-header-text, var(--jw-text-subtle));
 }
 .jw-code-lang {
   padding: 0.1em 0.4em;
-  background: var(--jw-surface-overlay-2);
-  color: var(--jw-text-subtle);
+  background: var(--jw-code-lang-bg, var(--jw-surface-overlay-2));
+  color: var(--jw-code-lang-text, var(--jw-text-subtle));
   font-size: 0.75em;
   border-radius: 3px;
   font-weight: 500;
@@ -299,16 +327,16 @@ body {
 .jw-code-copy {
   padding: 0.25em 0.5em;
   background: transparent;
-  border: 1px solid var(--jw-border-color);
+  border: 1px solid var(--jw-code-copy-border, var(--jw-border-color));
   border-radius: 3px;
   cursor: pointer;
   font-size: 0.75em;
-  color: var(--jw-text-subtle);
+  color: var(--jw-code-header-text, var(--jw-text-subtle));
   transition: background 0.2s, border-color 0.2s;
 }
 .jw-code-copy:hover {
-  background: var(--jw-surface-overlay-2);
-  border-color: var(--jw-border-color-strong);
+  background: var(--jw-code-copy-hover-bg, var(--jw-surface-overlay-2));
+  border-color: var(--jw-code-copy-border, var(--jw-border-color-strong));
 }
 .jw-code-copy:active {
   background: var(--jw-surface-overlay-3);
@@ -322,10 +350,10 @@ body {
   display: flex;
   flex-direction: column;
   padding: 0 0.75em;
-  border-right: 1px solid var(--jw-border-color-subtle);
+  border-right: 1px solid var(--jw-code-border-color, var(--jw-border-color-subtle));
   text-align: right;
   user-select: none;
-  color: var(--jw-text-faint);
+  color: var(--jw-code-line-number-color, var(--jw-text-faint));
   font-variant-numeric: tabular-nums;
 }
 .jw-line-number {

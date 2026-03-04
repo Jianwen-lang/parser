@@ -1,5 +1,5 @@
 import { BlockAttributes, BlockNode, CommentBlock, TaggedBlock } from '../ast';
-import { SourceLocation, setNodeLocation } from '../location';
+import { getNodeLocation, SourceLocation, setNodeLocation } from '../location';
 import { CommitBlockOptions } from './rules/types';
 import { PendingBlockContext } from './types';
 
@@ -26,6 +26,7 @@ export function createBlockParseRuntime(): BlockParseRuntime {
   return {
     pending: {
       attrs: undefined,
+      anchorLocation: undefined,
       foldNext: false,
       tagName: undefined,
       isComment: false,
@@ -66,6 +67,7 @@ export function buildBlockAttrs(
 
 export function resetPending(pending: PendingBlockContext): void {
   pending.attrs = undefined;
+  pending.anchorLocation = undefined;
   pending.foldNext = false;
   pending.tagName = undefined;
   pending.isComment = false;
@@ -76,10 +78,18 @@ export function resetPending(pending: PendingBlockContext): void {
 
 export function commitParsedBlock(params: CommitParsedBlockParams): void {
   const { runtime, blocks, block, blockAttrs, lineInfo, lineLocation, options } = params;
+  const existingLocation = getNodeLocation(block);
+  const shouldReanchor =
+    existingLocation?.line !== lineLocation.line ||
+    existingLocation?.column !== lineLocation.column;
+  const blockToCommit = shouldReanchor ? ({ ...block } as BlockNode) : block;
+  if (!existingLocation || shouldReanchor) {
+    setNodeLocation(blockToCommit, lineLocation);
+  }
   const allowTag = options?.allowTag !== false;
   const taggedOrOriginal = allowTag
-    ? wrapTaggedIfNeeded(block, runtime.pending, blockAttrs, lineLocation)
-    : block;
+    ? wrapTaggedIfNeeded(blockToCommit, runtime.pending, blockAttrs, lineLocation)
+    : blockToCommit;
   const finalBlock = wrapCommentIfNeeded(taggedOrOriginal, runtime.pending, lineLocation);
   blocks.push(finalBlock);
   runtime.lastBlockPosition = resolveNextPosition(

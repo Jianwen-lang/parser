@@ -38,6 +38,16 @@ export interface RenderBlocksResult {
   groups: RenderBlockGroupDraft[];
 }
 
+function nestedRenderOptions(options: RenderHtmlOptions): RenderHtmlOptions {
+  if (!options.emitBlockMeta) {
+    return options;
+  }
+  return {
+    ...options,
+    emitBlockMeta: false,
+  };
+}
+
 export function renderBlocksToHtml(blocks: BlockNode[], options: RenderHtmlOptions = {}): string {
   return renderBlocksToHtmlWithGroups(blocks, options).html;
 }
@@ -151,6 +161,7 @@ export function renderBlocksToHtmlWithGroups(
         if (!prevAttrs?.sameLine) {
           rowStartIndex = i - 1;
           result.pop();
+          groups.pop();
         }
       }
     }
@@ -299,7 +310,7 @@ function renderQuoteBlock(
   block: BlockNode & { type: 'quote' },
   options: RenderHtmlOptions,
 ): string {
-  const inner = renderBlocksToHtml(block.children, options);
+  const inner = renderBlocksToHtml(block.children, nestedRenderOptions(options));
   const attrs = buildBlockAttributes(block.blockAttrs, {
     extraData: { 'data-jw-level': String(block.level) },
   });
@@ -342,7 +353,7 @@ function renderListItemBlock(block: ListItemBlock, options: RenderHtmlOptions): 
   }
 
   const inner = renderBlocksToHtml(block.children, {
-    ...options,
+    ...nestedRenderOptions(options),
     suppressBlockWrapper: true,
   });
 
@@ -350,14 +361,14 @@ function renderListItemBlock(block: ListItemBlock, options: RenderHtmlOptions): 
     const firstChild = block.children[0];
     if (firstChild && firstChild.type === 'paragraph') {
       const summaryContent = renderBlockToHtml(firstChild, {
-        ...options,
+        ...nestedRenderOptions(options),
         suppressBlockWrapper: true,
       });
       const remainingChildren = block.children.slice(1);
       const detailsContent =
         remainingChildren.length > 0
           ? renderBlocksToHtml(remainingChildren, {
-              ...options,
+              ...nestedRenderOptions(options),
               suppressBlockWrapper: true,
             })
           : '';
@@ -555,7 +566,7 @@ function renderFootnotesBlock(block: FootnotesBlock, options: RenderHtmlOptions)
 }
 
 function renderFootnoteDefBlock(block: FootnoteDefBlock, options: RenderHtmlOptions): string {
-  const inner = renderBlocksToHtml(block.children, options);
+  const inner = renderBlocksToHtml(block.children, nestedRenderOptions(options));
   const attrs = buildBlockAttributes(block.blockAttrs, {
     extraData: { 'data-jw-footnote-id': block.id },
   });
@@ -566,7 +577,7 @@ function renderCommentBlock(
   block: BlockNode & { type: 'commentBlock' },
   options: RenderHtmlOptions,
 ): string {
-  const inner = renderBlocksToHtml(block.children, options);
+  const inner = renderBlocksToHtml(block.children, nestedRenderOptions(options));
   const attrs = buildBlockAttributes(block.blockAttrs, {
     extraData: { 'data-jw-comment': 'true' },
   });
@@ -613,7 +624,7 @@ function renderTaggedBlock(
     extraData: { 'data-jw-tag': block.name },
     rawAttrs: [`id="${escapeAttr(id)}"`],
   });
-  const inner = renderBlockToHtml(block.child, options);
+  const inner = renderBlockToHtml(block.child, nestedRenderOptions(options));
   return `<div class="jw-tagged-block"${attrs}>${inner}</div>`;
 }
 

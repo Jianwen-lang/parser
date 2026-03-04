@@ -100,6 +100,34 @@ const { ast, errors } = parseJianwenWithErrors(source, {
   - `renderJianwenToHtmlDocument(source, options?) => { html; ast; errors }`
   - `renderJianwenToHtmlDocumentWithBlockMap(source, options?) => { html; ast; errors; groups }`
   - `buildHtmlDocument(bodyHtml, options?) => string`
+  - `composeThemeCss(options?) => string`（`preset: 'default' | 'none'`，支持 `theme` token 对象与 `extraCss` 追加覆盖）
+  - `renderThemeTokenCss(theme) => string`
+  - `JIANWEN_THEME_TOKEN_KEYS` / `JianwenThemeConfig` / `JianwenThemeTokenValues`
+
+## 主题对象（Token）注入
+
+`JianwenThemeConfig` 支持局部覆盖：`light` / `dark` 可只写需要改动的 token，未提供项自动回退到默认主题。
+
+```ts
+import {
+  composeThemeCss,
+} from '@jianwen-lang/parser';
+
+const css = composeThemeCss({
+  preset: 'default',
+  theme: {
+    light: { '--jw-strong-color': '#0b766e' },
+    dark: { '--jw-strong-color': '#79e9dc' },
+    includeAutoDark: true,
+  },
+});
+```
+
+CLI 也支持通过 `--theme-file` 注入 JSON 文件（同样支持局部覆盖）：
+
+```bash
+jw-render input.jw --out out.html --theme-file ./theme.json
+```
 
 ## 规范与扩展
 

@@ -60,13 +60,17 @@ function finalizeGroups(
 ): RenderedBlockGroup[] {
   return groups.map((group, index) => {
     const next = groups[index + 1];
-    let endLine = sourceLineCount;
-    if (next?.startLine !== undefined) {
-      endLine = Math.max(1, next.startLine - 1);
+    let endLine: number | undefined;
+    if (group.startLine !== undefined) {
+      if (next?.startLine !== undefined) {
+        endLine = Math.max(group.startLine, 1, next.startLine - 1);
+      } else if (sourceLineCount !== undefined) {
+        endLine = Math.max(group.startLine, 1, sourceLineCount);
+      }
     }
     return {
       ...group,
-      endLine: group.startLine !== undefined ? endLine : undefined,
+      endLine,
     };
   });
 }

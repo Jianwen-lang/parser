@@ -94,7 +94,9 @@ function parseInitializationTemplate(source: string): TemplateParseResult {
     }
   }
 
-  const bodyLines = lines.slice(0, start).concat(lines.slice(end + 1));
+  const bodyLines = lines.map((line, index) =>
+    index >= start && index <= end ? '' : (line ?? ''),
+  );
   const body = bodyLines.join('\n');
   if (isMetaEmpty(meta)) {
     return { body };

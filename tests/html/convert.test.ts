@@ -22,6 +22,22 @@ describe('html/convert', () => {
     expect(html).not.toContain(DEFAULT_CSS);
   });
 
+  it('buildHtmlDocument can compose custom theme tokens when cssText is not provided', () => {
+    const html = buildHtmlDocument('<article class="jw-root"></article>', {
+      theme: {
+        light: {
+          '--jw-strong-color': '#112233',
+        },
+        dark: {
+          '--jw-strong-color': '#ddeeff',
+        },
+      },
+    });
+
+    expect(html).toContain('--jw-strong-color: #112233;');
+    expect(html).toContain('--jw-strong-color: #ddeeff;');
+  });
+
   it('buildHtmlDocument can append runtime script', () => {
     const html = buildHtmlDocument('<article class="jw-root"></article>', {
       includeRuntime: true,

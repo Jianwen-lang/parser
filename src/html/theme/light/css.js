@@ -40,6 +40,30 @@ const LIGHT_CSS = `
   --jw-task-not-done-cross: #ffffff;
   --jw-task-in-progress: #555555;
 
+  --jw-strong-color: #2b2f39;
+  --jw-strong-weight: 700;
+  --jw-underline-color: #1d4ed8;
+  --jw-underline-thickness: 0.08em;
+  --jw-underline-offset: 0.12em;
+  --jw-wave-color: #1d4ed8;
+  --jw-strike-color: #767676;
+
+  --jw-table-border-color: #d1d5db;
+  --jw-table-header-bg: #f0f3f6;
+  --jw-table-header-text: #3f4654;
+  --jw-table-row-bg: #ffffff;
+  --jw-table-row-alt-bg: #f9fafb;
+
+  --jw-code-block-bg: #f5f5f5;
+  --jw-code-border-color: #dddddd;
+  --jw-code-header-bg: rgba(0, 0, 0, 0.04);
+  --jw-code-header-text: #5f6672;
+  --jw-code-lang-bg: rgba(0, 0, 0, 0.06);
+  --jw-code-lang-text: #4b5563;
+  --jw-code-copy-border: #c9ced6;
+  --jw-code-copy-hover-bg: rgba(0, 0, 0, 0.08);
+  --jw-code-line-number-color: #9aa0ad;
+
   --jw-color-red: ${PRESET_COLORS.red};
   --jw-color-orange: ${PRESET_COLORS.orange};
   --jw-color-yellow: ${PRESET_COLORS.yellow};

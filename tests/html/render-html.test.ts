@@ -117,6 +117,55 @@ describe('render-html - document and meta', () => {
     expect(rendered.html).toContain('data-jw-group-id="g-0"');
     expect(rendered.html).toContain('data-jw-group-id="g-1"');
   });
+
+  it('keeps groups aligned with rendered same-line wrappers', () => {
+    const source = ['# A', '[->]', '# B', '# C'].join('\n');
+    const doc = parseJianwen(source);
+    const rendered = renderDocumentToHtmlWithBlockMap(doc, { includeMeta: false });
+
+    expect(rendered.groups.length).toBe(2);
+    expect(rendered.groups[0]?.kind).toBe('sameLine');
+    expect(rendered.groups[0]?.startLine).toBe(1);
+    expect(rendered.groups[0]?.endLine).toBe(3);
+    expect(rendered.groups[1]?.kind).toBe('single');
+    expect(rendered.groups[1]?.startLine).toBe(4);
+    const idCount = (rendered.html.match(/data-jw-group-id="/g) ?? []).length;
+    expect(idCount).toBe(rendered.groups.length);
+  });
+
+  it('anchors mapped line ranges to attribute-only lines', () => {
+    const source = ['[->]', '# A', '# B'].join('\n');
+    const doc = parseJianwen(source);
+    const rendered = renderDocumentToHtmlWithBlockMap(doc, { includeMeta: false });
+
+    expect(rendered.groups[0]?.startLine).toBe(1);
+    expect(rendered.groups[0]?.endLine).toBe(2);
+    expect(rendered.groups[1]?.startLine).toBe(3);
+  });
+
+  it('preserves source line numbers when initialization template exists', () => {
+    const source = ['________', '[title]=T', '________', '', '# A', '', 'B'].join('\n');
+    const doc = parseJianwen(source);
+    const rendered = renderDocumentToHtmlWithBlockMap(doc, { includeMeta: true });
+
+    expect(rendered.groups[0]?.startLine).toBe(5);
+    expect(rendered.groups[0]?.endLine).toBe(6);
+    expect(rendered.groups[1]?.startLine).toBe(7);
+  });
+
+  it('does not emit duplicate group ids for nested blocks', () => {
+    const source = ['@ 第一段引用', '', '@ 第二段引用'].join('\n');
+    const doc = parseJianwen(source);
+    const rendered = renderDocumentToHtmlWithBlockMap(doc, { includeMeta: false });
+
+    const allIds = [...rendered.html.matchAll(/data-jw-group-id="([^"]+)"/g)].map(
+      (match) => match[1],
+    );
+    const uniqueIds = new Set(allIds);
+
+    expect(uniqueIds.size).toBe(rendered.groups.length);
+    expect(allIds.length).toBe(rendered.groups.length);
+  });
 });
 
 describe('render-html - blocks', () => {

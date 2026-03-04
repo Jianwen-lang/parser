@@ -40,6 +40,30 @@ const DARK_CSS = `
   --jw-task-not-done-cross: #eef1f7;
   --jw-task-in-progress: #b7bdca;
 
+  --jw-strong-color: #f3f5f8;
+  --jw-strong-weight: 700;
+  --jw-underline-color: #8ab4f8;
+  --jw-underline-thickness: 0.08em;
+  --jw-underline-offset: 0.12em;
+  --jw-wave-color: #8ab4f8;
+  --jw-strike-color: #98a2b3;
+
+  --jw-table-border-color: #374151;
+  --jw-table-header-bg: #1f2937;
+  --jw-table-header-text: #d1d5db;
+  --jw-table-row-bg: #141922;
+  --jw-table-row-alt-bg: #171d28;
+
+  --jw-code-block-bg: #1c1f26;
+  --jw-code-border-color: #313846;
+  --jw-code-header-bg: rgba(255, 255, 255, 0.05);
+  --jw-code-header-text: #b8c2d3;
+  --jw-code-lang-bg: rgba(255, 255, 255, 0.08);
+  --jw-code-lang-text: #d1d8e3;
+  --jw-code-copy-border: #4b5563;
+  --jw-code-copy-hover-bg: rgba(255, 255, 255, 0.12);
+  --jw-code-line-number-color: #8b95a7;
+
   --jw-color-red: ${PRESET_COLORS.red};
   --jw-color-orange: ${PRESET_COLORS.orange};
   --jw-color-yellow: ${PRESET_COLORS.yellow};
@@ -91,6 +115,30 @@ const DARK_CSS = `
     --jw-task-done-text: #1c1f26;
     --jw-task-not-done-cross: #eef1f7;
     --jw-task-in-progress: #b7bdca;
+
+    --jw-strong-color: #f3f5f8;
+    --jw-strong-weight: 700;
+    --jw-underline-color: #8ab4f8;
+    --jw-underline-thickness: 0.08em;
+    --jw-underline-offset: 0.12em;
+    --jw-wave-color: #8ab4f8;
+    --jw-strike-color: #98a2b3;
+
+    --jw-table-border-color: #374151;
+    --jw-table-header-bg: #1f2937;
+    --jw-table-header-text: #d1d5db;
+    --jw-table-row-bg: #141922;
+    --jw-table-row-alt-bg: #171d28;
+
+    --jw-code-block-bg: #1c1f26;
+    --jw-code-border-color: #313846;
+    --jw-code-header-bg: rgba(255, 255, 255, 0.05);
+    --jw-code-header-text: #b8c2d3;
+    --jw-code-lang-bg: rgba(255, 255, 255, 0.08);
+    --jw-code-lang-text: #d1d8e3;
+    --jw-code-copy-border: #4b5563;
+    --jw-code-copy-hover-bg: rgba(255, 255, 255, 0.12);
+    --jw-code-line-number-color: #8b95a7;
 
     --jw-color-red: ${PRESET_COLORS.red};
     --jw-color-orange: ${PRESET_COLORS.orange};

@@ -94,13 +94,14 @@ export function parseBlocks(source: string, errors: ParseError[]): BlockNode[] {
         postResetPending?: (pending: typeof runtime.pending) => void;
       },
     ): void => {
+      const commitLocation = runtime.pending.anchorLocation ?? lineLocation;
       commitParsedBlock({
         runtime,
         blocks,
         block,
         blockAttrs,
         lineInfo,
-        lineLocation,
+        lineLocation: commitLocation,
         options,
       });
     };
@@ -148,6 +149,9 @@ export function parseBlocks(source: string, errors: ParseError[]): BlockNode[] {
         tabCount: lineInfo.tabCount,
       });
       if (consumed) {
+        if (!runtime.pending.anchorLocation) {
+          runtime.pending.anchorLocation = lineLocation;
+        }
         i += 1;
         continue;
       }

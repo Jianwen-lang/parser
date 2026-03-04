@@ -8,7 +8,7 @@ import {
   RenderedBlockGroup,
 } from './render/html';
 import { RenderHtmlOptions, escapeAttr, escapeHtml } from './render/utils';
-import { DEFAULT_CSS } from './theme/theme';
+import { composeThemeCss, JianwenThemeConfig } from './theme/theme';
 
 export const DEFAULT_RUNTIME_SRC = 'dist/html/theme/runtime.js';
 
@@ -21,6 +21,7 @@ export interface HtmlDocumentOptions {
   includeCss?: boolean;
   cssText?: string;
   cssHref?: string;
+  theme?: JianwenThemeConfig;
 
   includeRuntime?: boolean;
   runtimeSrc?: string;
@@ -61,7 +62,8 @@ export function buildHtmlDocument(bodyHtml: string, options: HtmlDocumentOptions
     if (options.cssHref) {
       headParts.push(`<link rel="stylesheet" href="${escapeAttr(options.cssHref)}">`);
     } else {
-      const cssText = options.cssText ?? DEFAULT_CSS;
+      const cssText =
+        options.cssText ?? composeThemeCss({ preset: 'default', theme: options.theme });
       headParts.push(`<style>${cssText}</style>`);
     }
   }

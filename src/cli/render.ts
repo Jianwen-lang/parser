@@ -1,6 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { DocumentTheme } from '../html/theme/theme';
+import {
+  DocumentTheme,
+  JIANWEN_THEME_TOKEN_KEYS,
+  JianwenThemeConfig,
+  JianwenThemeTokenOverrides,
+} from '../html/theme/theme';
 import {
   DEFAULT_RUNTIME_SRC,
   HtmlDocumentOptions,
@@ -15,6 +20,7 @@ interface CliOptions {
   format?: boolean;
   includeCss?: boolean;
   cssHref?: string;
+  themeFilePath?: string;
   includeRuntime?: boolean;
   runtimeSrc?: string;
   includeComments?: boolean;
@@ -82,6 +88,7 @@ function parseCliArgs(argv: string[]): CliOptions {
   let format = false;
   let includeCss = true;
   let cssHref: string | undefined;
+  let themeFilePath: string | undefined;
   let includeRuntime = false;
   let runtimeSrc: string | undefined;
   let includeComments = false;
@@ -125,6 +132,14 @@ function parseCliArgs(argv: string[]): CliOptions {
       continue;
     }
 
+    if (arg === '--theme-file') {
+      const value = args.shift();
+      if (!value) throw new Error('Missing value for --theme-file');
+      themeFilePath = value;
+      includeCss = true;
+      continue;
+    }
+
     if (arg === '--runtime') {
       includeRuntime = true;
       continue;
@@ -157,6 +172,7 @@ Options:
   --format                 Beautify output HTML
   --no-css                 Do not inline CSS
   --css-href <href>        Link CSS instead of inlining
+  --theme-file <path>      Load Jianwen theme token JSON for CSS generation
   --runtime                Append runtime <script> tag (default src: ${DEFAULT_RUNTIME_SRC})
   --runtime-src <src>      Override runtime <script src=...>
   --comments               Include comment nodes
@@ -175,10 +191,92 @@ Options:
     format,
     includeCss,
     cssHref,
+    themeFilePath,
     includeRuntime,
     runtimeSrc,
     includeComments,
     includeMeta,
+  };
+}
+
+function validateThemeTokenMap(
+  filePath: string,
+  section: 'light' | 'dark',
+  candidate: unknown,
+): JianwenThemeTokenOverrides | undefined {
+  if (candidate === undefined) {
+    return undefined;
+  }
+  if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) {
+    throw new Error(`Theme file ${filePath} has invalid "${section}" section (expected object).`);
+  }
+
+  const expectedKeys = new Set<string>(JIANWEN_THEME_TOKEN_KEYS as readonly string[]);
+  const tokenMap = candidate as Record<string, unknown>;
+  const actualKeys = Object.keys(tokenMap);
+  const unknownKeys = actualKeys.filter((key) => !expectedKeys.has(key));
+
+  if (unknownKeys.length > 0) {
+    throw new Error(
+      `Theme file ${filePath} has unknown ${section} token(s): ${unknownKeys.join(', ')}`,
+    );
+  }
+
+  for (const key of actualKeys) {
+    if (typeof tokenMap[key] !== 'string') {
+      throw new Error(`Theme file ${filePath} token ${section}.${key} must be a string.`);
+    }
+  }
+
+  return tokenMap as JianwenThemeTokenOverrides;
+}
+
+function loadThemeFromFile(themeFilePath: string): JianwenThemeConfig {
+  const absoluteThemePath = path.resolve(process.cwd(), themeFilePath);
+  if (!fs.existsSync(absoluteThemePath)) {
+    throw new Error(`Theme file not found: ${absoluteThemePath}`);
+  }
+
+  let raw: unknown;
+  try {
+    raw = JSON.parse(fs.readFileSync(absoluteThemePath, 'utf-8'));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Invalid theme JSON file ${absoluteThemePath}: ${message}`);
+  }
+
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Error(`Theme file ${absoluteThemePath} must contain an object.`);
+  }
+
+  const parsed = raw as Record<string, unknown>;
+  const knownRootKeys = new Set(['light', 'dark', 'includeAutoDark']);
+  const unknownRootKeys = Object.keys(parsed).filter((key) => !knownRootKeys.has(key));
+  if (unknownRootKeys.length > 0) {
+    throw new Error(
+      `Theme file ${absoluteThemePath} has unknown root field(s): ${unknownRootKeys.join(', ')}`,
+    );
+  }
+
+  const lightCandidate = parsed.light;
+  const darkCandidate = parsed.dark;
+  const lightOverrides = validateThemeTokenMap(absoluteThemePath, 'light', lightCandidate);
+  const darkOverrides = validateThemeTokenMap(absoluteThemePath, 'dark', darkCandidate);
+
+  if (parsed.includeAutoDark !== undefined && typeof parsed.includeAutoDark !== 'boolean') {
+    throw new Error(`Theme file ${absoluteThemePath} field includeAutoDark must be a boolean.`);
+  }
+
+  if (!lightOverrides && !darkOverrides) {
+    throw new Error(
+      `Theme file ${absoluteThemePath} must provide at least one of "light" or "dark" token overrides.`,
+    );
+  }
+
+  return {
+    light: lightOverrides,
+    dark: darkOverrides,
+    includeAutoDark: parsed.includeAutoDark,
   };
 }
 
@@ -194,6 +292,10 @@ export function runRenderCli(argv: string[]): void {
 
   const baseDir = path.dirname(absoluteInput);
   const source = fs.readFileSync(absoluteInput, 'utf-8');
+  const themeConfig =
+    options.includeCss && options.themeFilePath
+      ? loadThemeFromFile(options.themeFilePath)
+      : undefined;
   const sourceLines = source.split(/\r?\n/);
   const includeLineCache = new Map<string, string[]>();
 
@@ -257,6 +359,7 @@ export function runRenderCli(argv: string[]): void {
   const documentOptions: HtmlDocumentOptions = {
     includeCss: options.includeCss,
     cssHref: options.cssHref,
+    theme: themeConfig,
     includeRuntime: options.includeRuntime,
     runtimeSrc: options.runtimeSrc,
     format: options.format,
